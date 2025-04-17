@@ -1,8 +1,7 @@
-
 import { 
   ShoppingBag, 
   FileDigit, 
-  Graduation, 
+  GraduationCap, 
   CreditCard, 
   Languages, 
   Truck, 
@@ -21,7 +20,7 @@ const features = [
     description: "Instant delivery of software, templates, ebooks, and more."
   },
   {
-    icon: <Graduation className="h-10 w-10 text-worldsell-orange-400" />,
+    icon: <GraduationCap className="h-10 w-10 text-worldsell-orange-400" />,
     title: "Online Courses",
     description: "Learn valuable skills with our integrated learning platform."
   },
