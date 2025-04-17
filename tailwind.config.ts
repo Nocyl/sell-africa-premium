@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,40 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// African-inspired colors
+				"worldsell": {
+					"orange": {
+						"50": "#fff8ed",
+						"100": "#ffefd6",
+						"200": "#ffd9a8",
+						"300": "#ffbe70",
+						"400": "#ff9937", // Primary orange
+						"500": "#ff7a06",
+						"600": "#e65a00",
+						"700": "#bf4004",
+						"800": "#99330b",
+						"900": "#7c2c0c",
+					},
+					"blue": {
+						"50": "#edfaff",
+						"100": "#d6f4ff",
+						"200": "#b3e7ff",
+						"300": "#83d4ff",
+						"400": "#48b8ff",
+						"500": "#1e95ff", // Primary blue
+						"600": "#0072e6",
+						"700": "#0057cc",
+						"800": "#004cb8",
+						"900": "#003c8f",
+					},
+					"earth": {
+						"100": "#f7eddd",
+						"200": "#e8d0a9",
+						"300": "#d2b17e", // Earthy accent
+						"400": "#b89055",
+						"500": "#96753e",
+					}
 				}
 			},
 			borderRadius: {
@@ -84,11 +119,22 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out'
 			}
 		}
 	},
