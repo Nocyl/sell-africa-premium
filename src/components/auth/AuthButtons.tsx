@@ -2,10 +2,16 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
+import { motion } from "framer-motion";
 
 const AuthButtons = () => {
   return (
-    <div className="flex gap-2">
+    <motion.div 
+      className="flex gap-2"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <Button 
         variant="outline" 
         size="sm" 
@@ -38,7 +44,7 @@ const AuthButtons = () => {
           <LogIn className="h-5 w-5" />
         </Link>
       </Button>
-    </div>
+    </motion.div>
   );
 };
 
