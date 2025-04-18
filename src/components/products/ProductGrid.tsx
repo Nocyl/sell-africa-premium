@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart, Star, ChevronDown, GridIcon, List } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface ProductGridProps {
   type?: "all" | "digital" | "physical" | "course";
@@ -12,6 +15,7 @@ interface ProductGridProps {
 const ProductGrid = ({ type = "all" }: ProductGridProps) => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
+  const navigate = useNavigate();
 
   // Données fictives des produits
   const products = [
@@ -88,6 +92,19 @@ const ProductGrid = ({ type = "all" }: ProductGridProps) => {
     ? products 
     : products.filter(product => product.type === type);
 
+  const handleAddToCart = (product: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success(`${product.name} ajouté au panier`);
+  };
+
+  const handleProductClick = (product: any) => {
+    if (product.type === "course") {
+      navigate(`/course/${product.id}`);
+    } else {
+      navigate(`/product/${product.id}`);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -130,7 +147,13 @@ const ProductGrid = ({ type = "all" }: ProductGridProps) => {
       
       <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'grid-cols-1 gap-4'}`}>
         {filteredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} viewMode={viewMode} />
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            viewMode={viewMode} 
+            onAddToCart={handleAddToCart}
+            onClick={() => handleProductClick(product)}
+          />
         ))}
       </div>
     </div>
@@ -140,104 +163,129 @@ const ProductGrid = ({ type = "all" }: ProductGridProps) => {
 interface ProductCardProps {
   product: any;
   viewMode: "grid" | "list";
+  onAddToCart: (product: any, e: React.MouseEvent) => void;
+  onClick: () => void;
 }
 
-const ProductCard = ({ product, viewMode }: ProductCardProps) => {
+const ProductCard = ({ product, viewMode, onAddToCart, onClick }: ProductCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
+    toast.success(isFavorite ? "Retiré des favoris" : "Ajouté aux favoris");
+  };
 
   if (viewMode === "list") {
     return (
-      <Card className="overflow-hidden">
-        <div className="flex flex-col sm:flex-row">
-          <div className={`${product.image} aspect-square sm:w-48 relative`}>
-            <Badge 
-              variant="outline" 
-              className="absolute top-2 left-2 bg-white"
-            >
-              {product.type === 'digital' ? 'Digital' : 
-               product.type === 'course' ? 'Course' : 'Physical'}
-            </Badge>
-            <button 
-              className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full"
-              onClick={() => setIsFavorite(!isFavorite)}
-            >
-              <Heart 
-                size={18} 
-                className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"} 
-              />
-            </button>
+      <motion.div
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Card className="overflow-hidden cursor-pointer" onClick={onClick}>
+          <div className="flex flex-col sm:flex-row">
+            <div className={`${product.image} aspect-square sm:w-48 relative`}>
+              <Badge 
+                variant="outline" 
+                className="absolute top-2 left-2 bg-white"
+              >
+                {product.type === 'digital' ? 'Digital' : 
+                 product.type === 'course' ? 'Course' : 'Physical'}
+              </Badge>
+              <button 
+                className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full"
+                onClick={handleFavorite}
+              >
+                <Heart 
+                  size={18} 
+                  className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"} 
+                />
+              </button>
+            </div>
+            
+            <CardContent className="p-4 flex-1">
+              <div className="mb-1 text-xs text-muted-foreground">{product.seller}</div>
+              <h3 className="font-medium text-lg mb-2">{product.name}</h3>
+              
+              <div className="flex items-center gap-1 mb-3">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span className="text-sm font-medium">{product.rating}</span>
+                <span className="text-xs text-muted-foreground">({product.reviews})</span>
+              </div>
+              
+              <div className="font-semibold text-lg mb-3">
+                {product.currency} {product.price.toFixed(2)}
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500"
+                  onClick={(e) => onAddToCart(product, e)}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Ajouter au panier
+                </Button>
+                <Button variant="outline">
+                  Voir détails
+                </Button>
+              </div>
+            </CardContent>
           </div>
-          
-          <CardContent className="p-4 flex-1">
-            <div className="mb-1 text-xs text-muted-foreground">{product.seller}</div>
-            <h3 className="font-medium text-lg mb-2">{product.name}</h3>
-            
-            <div className="flex items-center gap-1 mb-3">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm font-medium">{product.rating}</span>
-              <span className="text-xs text-muted-foreground">({product.reviews})</span>
-            </div>
-            
-            <div className="font-semibold text-lg mb-3">
-              {product.currency} {product.price.toFixed(2)}
-            </div>
-            
-            <div className="flex gap-2">
-              <Button className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Ajouter au panier
-              </Button>
-              <Button variant="outline">
-                Voir détails
-              </Button>
-            </div>
-          </CardContent>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
     );
   }
   
   return (
-    <Card className="overflow-hidden h-full">
-      <div className={`aspect-square ${product.image} relative`}>
-        <Badge 
-          variant="outline" 
-          className="absolute top-2 left-2 bg-white"
-        >
-          {product.type === 'digital' ? 'Digital' : 
-           product.type === 'course' ? 'Course' : 'Physical'}
-        </Badge>
-        <button 
-          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full"
-          onClick={() => setIsFavorite(!isFavorite)}
-        >
-          <Heart 
-            size={18} 
-            className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"} 
-          />
-        </button>
-      </div>
-      
-      <CardContent className="p-4">
-        <div className="mb-1 text-xs text-muted-foreground">{product.seller}</div>
-        <h3 className="font-medium text-sm mb-1 line-clamp-2">{product.name}</h3>
-        
-        <div className="flex items-center gap-1 mb-2">
-          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm font-medium">{product.rating}</span>
-          <span className="text-xs text-muted-foreground">({product.reviews})</span>
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="overflow-hidden h-full cursor-pointer" onClick={onClick}>
+        <div className={`aspect-square ${product.image} relative`}>
+          <Badge 
+            variant="outline" 
+            className="absolute top-2 left-2 bg-white"
+          >
+            {product.type === 'digital' ? 'Digital' : 
+             product.type === 'course' ? 'Course' : 'Physical'}
+          </Badge>
+          <button 
+            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full"
+            onClick={handleFavorite}
+          >
+            <Heart 
+              size={18} 
+              className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"} 
+            />
+          </button>
         </div>
         
-        <div className="flex justify-between items-center mt-3">
-          <div className="font-semibold">
-            {product.currency} {product.price.toFixed(2)}
+        <CardContent className="p-4">
+          <div className="mb-1 text-xs text-muted-foreground">{product.seller}</div>
+          <h3 className="font-medium text-sm mb-1 line-clamp-2">{product.name}</h3>
+          
+          <div className="flex items-center gap-1 mb-2">
+            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm font-medium">{product.rating}</span>
+            <span className="text-xs text-muted-foreground">({product.reviews})</span>
           </div>
-          <Button size="sm" className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500 h-8 w-8 p-0">
-            <ShoppingCart className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          
+          <div className="flex justify-between items-center mt-3">
+            <div className="font-semibold">
+              {product.currency} {product.price.toFixed(2)}
+            </div>
+            <Button 
+              size="sm" 
+              className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500 h-8 w-8 p-0"
+              onClick={(e) => onAddToCart(product, e)}
+            >
+              <ShoppingCart className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

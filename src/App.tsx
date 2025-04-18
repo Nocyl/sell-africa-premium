@@ -15,6 +15,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
+import ProductDetail from "./pages/ProductDetail";
+import CourseDetail from "./pages/CourseDetail";
+import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +34,10 @@ const App = () => (
           <Route path="/digital" element={<DigitalProducts />} />
           <Route path="/physical" element={<PhysicalProducts />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/course/:id" element={<CourseDetail />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

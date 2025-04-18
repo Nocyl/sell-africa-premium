@@ -5,8 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Clock, UserRound, BookOpen } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 const CourseGrid = () => {
+  const navigate = useNavigate();
+  
   // Données fictives des cours
   const courses = [
     {
@@ -122,7 +127,7 @@ const CourseGrid = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} />
+          <CourseCard key={course.id} course={course} onClick={() => navigate(`/course/${course.id}`)} />
         ))}
       </div>
     </div>
@@ -131,73 +136,93 @@ const CourseGrid = () => {
 
 interface CourseCardProps {
   course: any;
+  onClick: () => void;
 }
 
-const CourseCard = ({ course }: CourseCardProps) => {
+const CourseCard = ({ course, onClick }: CourseCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
+    toast.success(isFavorite ? "Retiré des favoris" : "Ajouté aux favoris");
+  };
+
+  const handleEnroll = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success(`Inscription au cours: ${course.title}`);
+  };
+
   return (
-    <Card className="overflow-hidden h-full">
-      <div className={`aspect-video ${course.image} relative`}>
-        {course.featured && (
-          <Badge className="absolute top-2 left-2 bg-worldsell-orange-400">
-            Populaire
-          </Badge>
-        )}
-        <button 
-          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full"
-          onClick={() => setIsFavorite(!isFavorite)}
-        >
-          <Heart 
-            size={18} 
-            className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"} 
-          />
-        </button>
-      </div>
-      
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{course.rating}</span>
-            <span className="text-xs text-muted-foreground">({course.reviews})</span>
-          </div>
-          <Badge variant="outline" className="text-xs">
-            {course.level}
-          </Badge>
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="overflow-hidden h-full cursor-pointer" onClick={onClick}>
+        <div className={`aspect-video ${course.image} relative`}>
+          {course.featured && (
+            <Badge className="absolute top-2 left-2 bg-worldsell-orange-400">
+              Populaire
+            </Badge>
+          )}
+          <button 
+            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full"
+            onClick={handleFavorite}
+          >
+            <Heart 
+              size={18} 
+              className={isFavorite ? "fill-red-500 text-red-500" : "text-gray-500"} 
+            />
+          </button>
         </div>
         
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{course.title}</h3>
-        
-        <div className="text-sm text-muted-foreground mb-3">
-          Par {course.instructor}
-        </div>
-        
-        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-          <div className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" />
-            <span>{course.duration}</span>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="text-sm font-medium">{course.rating}</span>
+              <span className="text-xs text-muted-foreground">({course.reviews})</span>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              {course.level}
+            </Badge>
           </div>
-          <div className="flex items-center gap-1">
-            <BookOpen className="h-3.5 w-3.5" />
-            <span>{course.lessons} leçons</span>
+          
+          <h3 className="font-semibold text-lg mb-2 line-clamp-2">{course.title}</h3>
+          
+          <div className="text-sm text-muted-foreground mb-3">
+            Par {course.instructor}
           </div>
-          <div className="flex items-center gap-1">
-            <UserRound className="h-3.5 w-3.5" />
-            <span>{course.students}</span>
+          
+          <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+            <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" />
+              <span>{course.duration}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <BookOpen className="h-3.5 w-3.5" />
+              <span>{course.lessons} leçons</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <UserRound className="h-3.5 w-3.5" />
+              <span>{course.students}</span>
+            </div>
           </div>
-        </div>
-        
-        <div className="flex items-center justify-between mt-4">
-          <div className="font-semibold text-lg">
-            {course.currency} {course.price.toFixed(2)}
+          
+          <div className="flex items-center justify-between mt-4">
+            <div className="font-semibold text-lg">
+              {course.currency} {course.price.toFixed(2)}
+            </div>
+            <Button 
+              className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500"
+              onClick={handleEnroll}
+            >
+              S'inscrire
+            </Button>
           </div>
-          <Button className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500">
-            S'inscrire
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
