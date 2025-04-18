@@ -12,18 +12,19 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AuthButtons from "@/components/auth/AuthButtons";
 
 const Navbar = () => {
   const isMobile = useIsMobile();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const navItems = [
-    { name: "Home", href: "/" },
-    { name: "Products", href: "/products" },
+    { name: "Accueil", href: "/" },
+    { name: "Produits", href: "/products" },
     { name: "Digital", href: "/digital" },
-    { name: "Physical", href: "/physical" },
-    { name: "Courses", href: "/courses" },
-    { name: "Sell", href: "/sell" },
+    { name: "Physique", href: "/physical" },
+    { name: "Formations", href: "/courses" },
+    { name: "Vendre", href: "/sell" },
   ];
 
   return (
@@ -41,7 +42,7 @@ const Navbar = () => {
               <SheetHeader>
                 <SheetTitle>WorldSell</SheetTitle>
                 <SheetDescription>
-                  Premium marketplace for Africa
+                  La marketplace premium pour l'Afrique
                 </SheetDescription>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-4">
@@ -84,7 +85,7 @@ const Navbar = () => {
             <div className="flex w-[200px] items-center gap-2 lg:w-[300px]">
               <input
                 type="search"
-                placeholder="Search products..."
+                placeholder="Rechercher des produits..."
                 className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
               />
               <Button
@@ -102,18 +103,17 @@ const Navbar = () => {
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
+              <span className="sr-only">Rechercher</span>
             </Button>
           )}
 
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-            <span className="sr-only">Account</span>
-          </Button>
+          <AuthButtons />
 
-          <Button variant="ghost" size="icon">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="sr-only">Cart</span>
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/cart">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="sr-only">Panier</span>
+            </Link>
           </Button>
         </div>
       </div>
