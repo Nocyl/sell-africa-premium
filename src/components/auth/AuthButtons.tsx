@@ -6,14 +6,19 @@ import { LogIn, UserPlus } from "lucide-react";
 const AuthButtons = () => {
   return (
     <div className="flex gap-2">
-      <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        asChild 
+        className="hidden sm:flex hover:scale-105 transition-transform"
+      >
         <Link to="/login" className="flex items-center gap-1">
           <LogIn className="w-4 h-4" />
           <span>Se connecter</span>
         </Link>
       </Button>
       <Button 
-        className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500 text-white hidden sm:flex" 
+        className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500 text-white hidden sm:flex hover:scale-105 transition-transform" 
         size="sm" 
         asChild
       >
@@ -23,12 +28,11 @@ const AuthButtons = () => {
         </Link>
       </Button>
       
-      {/* Version mobile - seulement l'icône */}
       <Button 
         variant="ghost" 
         size="icon" 
         asChild 
-        className="sm:hidden"
+        className="sm:hidden hover:scale-105 transition-transform"
       >
         <Link to="/login">
           <LogIn className="h-5 w-5" />
