@@ -8,9 +8,11 @@ import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useCart } from "@/contexts/CartContext";
 
 const CourseGrid = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   
   // Données fictives des cours
   const courses = [
@@ -127,7 +129,24 @@ const CourseGrid = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} onClick={() => navigate(`/course/${course.id}`)} />
+          <CourseCard 
+            key={course.id} 
+            course={course} 
+            onClick={() => navigate(`/course/${course.id}`)} 
+            onEnroll={(e, course) => {
+              e.stopPropagation();
+              addToCart({
+                id: course.id,
+                name: course.title,
+                price: course.price,
+                category: 'Formation',
+                quantity: 1,
+                image: `https://source.unsplash.com/random/300x300/?course`,
+                type: 'course'
+              });
+              toast.success(`Inscription au cours: ${course.title}`);
+            }}
+          />
         ))}
       </div>
     </div>
@@ -137,20 +156,16 @@ const CourseGrid = () => {
 interface CourseCardProps {
   course: any;
   onClick: () => void;
+  onEnroll: (e: React.MouseEvent, course: any) => void;
 }
 
-const CourseCard = ({ course, onClick }: CourseCardProps) => {
+const CourseCard = ({ course, onClick, onEnroll }: CourseCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsFavorite(!isFavorite);
     toast.success(isFavorite ? "Retiré des favoris" : "Ajouté aux favoris");
-  };
-
-  const handleEnroll = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toast.success(`Inscription au cours: ${course.title}`);
   };
 
   return (
@@ -215,7 +230,7 @@ const CourseCard = ({ course, onClick }: CourseCardProps) => {
             </div>
             <Button 
               className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500"
-              onClick={handleEnroll}
+              onClick={(e) => onEnroll(e, course)}
             >
               S'inscrire
             </Button>

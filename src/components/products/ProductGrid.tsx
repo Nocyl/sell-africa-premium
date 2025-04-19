@@ -7,6 +7,7 @@ import { ShoppingCart, Heart, Star, ChevronDown, GridIcon, List } from "lucide-r
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductGridProps {
   type?: "all" | "digital" | "physical" | "course";
@@ -16,6 +17,7 @@ const ProductGrid = ({ type = "all" }: ProductGridProps) => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   // Données fictives des produits
   const products = [
@@ -94,7 +96,16 @@ const ProductGrid = ({ type = "all" }: ProductGridProps) => {
 
   const handleAddToCart = (product: any, e: React.MouseEvent) => {
     e.stopPropagation();
-    toast.success(`${product.name} ajouté au panier`);
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.type === 'digital' ? 'Digital' : 
+               product.type === 'course' ? 'Formation' : 'Physique',
+      quantity: 1,
+      image: `https://source.unsplash.com/random/300x300/?${product.type}`,
+      type: product.type
+    });
   };
 
   const handleProductClick = (product: any) => {

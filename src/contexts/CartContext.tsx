@@ -21,6 +21,7 @@ interface CartContextType {
   decreaseQuantity: (itemId: number) => void;
   clearCart: () => void;
   cartCount: number;
+  cartTotal: number;
   showCartPopup: boolean;
   setShowCartPopup: (show: boolean) => void;
   closeCartPopup: () => void;
@@ -48,6 +49,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
   // Calculate total number of items
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  
+  // Calculate total price
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   // Add item to cart
   const addToCart = (newItem: CartItem) => {
@@ -140,6 +144,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       decreaseQuantity,
       clearCart,
       cartCount,
+      cartTotal,
       showCartPopup,
       setShowCartPopup,
       closeCartPopup

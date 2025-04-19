@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useCart } from "@/contexts/CartContext";
 
 // Mock product data
 const products = [
@@ -63,10 +64,20 @@ const products = [
 const ProductCard = ({ product }: { product: typeof products[0] }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toast.success(`${product.name} ajouté au panier`);
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.type === 'digital' ? 'Digital' : 
+               product.type === 'course' ? 'Formation' : 'Physique',
+      quantity: 1,
+      image: `https://source.unsplash.com/random/300x300/?${product.type}`,
+      type: product.type
+    });
   };
 
   const handleProductClick = () => {

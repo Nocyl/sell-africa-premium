@@ -1,421 +1,510 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowLeft, CreditCard, ShieldCheck, Lock,
-  CheckCircle, AlertCircle
-} from "lucide-react";
-import { 
-  Card, 
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
-import { 
-  RadioGroup,
-  RadioGroupItem 
-} from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
-import { 
-  Form, 
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  CreditCard, Banknote, Landmark, ShoppingCart, 
+  ChevronRight, Truck, ShieldCheck, PackageCheck,
+  Check 
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
-
-// Créer un schéma de validation pour le formulaire
-const formSchema = z.object({
-  name: z.string().min(3, { message: "Le nom doit contenir au moins 3 caractères" }),
-  email: z.string().email({ message: "Veuillez entrer une adresse email valide" }),
-  cardNumber: z.string().regex(/^\d{16}$/, { message: "Le numéro de carte doit contenir 16 chiffres" }),
-  expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, { message: "Format invalide (MM/YY)" }),
-  cvv: z.string().regex(/^\d{3,4}$/, { message: "Le CVV doit contenir 3 ou 4 chiffres" }),
-  address: z.string().min(5, { message: "L'adresse doit contenir au moins 5 caractères" }),
-  city: z.string().min(2, { message: "La ville doit contenir au moins 2 caractères" }),
-  postalCode: z.string().min(3, { message: "Le code postal doit contenir au moins 3 caractères" }),
-  country: z.string().min(2, { message: "Le pays doit contenir au moins 2 caractères" }),
-  paymentMethod: z.enum(["card", "mobile", "paypal"], { required_error: "Veuillez sélectionner un mode de paiement" })
-});
-
-// Items fictifs dans le panier
-const cartItems = [
-  {
-    id: 1,
-    name: "Advanced Digital Marketing Course",
-    price: 129.99,
-    type: "course",
-    quantity: 1
-  },
-  {
-    id: 2,
-    name: "Handcrafted African Leather Bag",
-    price: 89.99,
-    type: "physical",
-    quantity: 1
-  }
-];
+import { countries, getAvailableProviders, PaymentProvider, PaymentType } from "@/utils/paymentOptions";
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Calculer les totaux
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = 12.99;
-  const tax = subtotal * 0.1; // 10% de taxe
-  const total = subtotal + shipping + tax;
+  const { cartItems, cartTotal, clearCart } = useCart();
+  const [paymentMethod, setPaymentMethod] = useState<PaymentType>("card");
+  const [country, setCountry] = useState("SN");
+  const [availableProviders, setAvailableProviders] = useState<PaymentProvider[]>([]);
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Initialiser le formulaire avec react-hook-form
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      cardNumber: "",
-      expiryDate: "",
-      cvv: "",
-      address: "",
-      city: "",
-      postalCode: "",
-      country: "",
-      paymentMethod: "card"
+  // Effet pour mettre à jour les fournisseurs de paiement disponibles
+  useEffect(() => {
+    if (country && paymentMethod) {
+      const providers = getAvailableProviders(country, paymentMethod);
+      setAvailableProviders(providers);
+      
+      // Sélectionner le premier fournisseur par défaut s'il en existe
+      if (providers.length > 0 && !providers.some(p => p.id === selectedProvider)) {
+        setSelectedProvider(providers[0].id);
+      } else if (providers.length === 0) {
+        setSelectedProvider(null);
+      }
     }
-  });
+  }, [country, paymentMethod]);
 
-  // Fonction de soumission du formulaire
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    setIsProcessing(true);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
     
-    // Simuler un traitement de paiement
     setTimeout(() => {
-      setIsProcessing(false);
       toast.success("Paiement effectué avec succès!");
+      clearCart();
       navigate("/payment-success");
     }, 2000);
   };
 
+  // Vérifier si le panier est vide
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 py-12 container">
+          <div className="max-w-md mx-auto text-center">
+            <div className="mb-6 p-6 rounded-full bg-gray-100 inline-block">
+              <ShoppingCart className="h-12 w-12 text-gray-400" />
+            </div>
+            <h1 className="text-2xl font-bold mb-3">Votre panier est vide</h1>
+            <p className="text-muted-foreground mb-6">
+              Vous n'avez pas encore ajouté d'articles à votre panier.
+            </p>
+            <Button onClick={() => navigate("/products")}>
+              Découvrir nos produits
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
-      <main className="flex-1 bg-muted/30">
-        <div className="container py-8">
-          <Button 
-            variant="ghost" 
-            className="mb-6" 
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
+      <main className="flex-1 py-8 container">
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Finaliser votre commande</h1>
+          <p className="text-muted-foreground">
+            Complétez les informations ci-dessous pour passer votre commande.
+          </p>
+        </div>
 
-          <h1 className="text-2xl md:text-3xl font-bold mb-8">Finaliser votre commande</h1>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Formulaire de paiement */}
-            <motion.div 
-              className="lg:col-span-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Colonne principale */}
+          <div className="lg:col-span-2">
+            <form onSubmit={handleSubmit}>
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Informations personnelles</CardTitle>
+                  <CardDescription>
+                    Vos informations de contact pour cette commande
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">Prénom</Label>
+                      <Input id="firstName" placeholder="Votre prénom" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Nom</Label>
+                      <Input id="lastName" placeholder="Votre nom" required />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" placeholder="votre@email.com" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Téléphone</Label>
+                    <Input id="phone" placeholder="Votre numéro de téléphone" required />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Adresse de livraison (seulement si des produits physiques sont dans le panier) */}
+              {cartItems.some(item => item.type === "physical") && (
+                <Card className="mb-6">
+                  <CardHeader>
+                    <CardTitle>Adresse de livraison</CardTitle>
+                    <CardDescription>
+                      Où souhaitez-vous recevoir votre commande?
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Adresse</Label>
+                      <Input id="address" placeholder="Numéro et nom de rue" required />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="city">Ville</Label>
+                        <Input id="city" placeholder="Votre ville" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="postalCode">Code postal</Label>
+                        <Input id="postalCode" placeholder="Code postal" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="country">Pays</Label>
+                      <Select defaultValue={country} onValueChange={setCountry}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez votre pays" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem key={country.code} value={country.code}>
+                              {country.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="instructions">Instructions de livraison (optionnel)</Label>
+                      <Textarea 
+                        id="instructions" 
+                        placeholder="Instructions spéciales pour la livraison"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Méthode de paiement */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Informations de paiement</CardTitle>
+                  <CardTitle>Méthode de paiement</CardTitle>
+                  <CardDescription>
+                    Choisissez votre mode de paiement préféré
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Coordonnées</h3>
-                        
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nom complet</FormLabel>
-                              <FormControl>
-                                <Input placeholder="John Doe" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input placeholder="john.doe@example.com" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                  <Tabs defaultValue="card" onValueChange={(val) => setPaymentMethod(val as PaymentType)}>
+                    <TabsList className="grid grid-cols-4 mb-6">
+                      <TabsTrigger value="card">
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        <span className="hidden sm:inline">Carte</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="mobile">
+                        <Banknote className="h-4 w-4 mr-2" />
+                        <span className="hidden sm:inline">Mobile Money</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="bank">
+                        <Landmark className="h-4 w-4 mr-2" />
+                        <span className="hidden sm:inline">Banque</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="transfer">
+                        <Truck className="h-4 w-4 mr-2" />
+                        <span className="hidden sm:inline">Transfert</span>
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="card" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="cardNumber">Numéro de carte</Label>
+                        <Input id="cardNumber" placeholder="1234 5678 9012 3456" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="expiry">Date d'expiration</Label>
+                          <Input id="expiry" placeholder="MM/AA" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cvc">CVC</Label>
+                          <Input id="cvc" placeholder="123" />
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="mobile" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="paymentCountry">Pays</Label>
+                        <Select defaultValue={country} onValueChange={setCountry}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionnez votre pays" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((country) => (
+                              <SelectItem key={country.code} value={country.code}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       
-                      <Separator />
-                      
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Mode de paiement</h3>
-                        
-                        <FormField
-                          control={form.control}
-                          name="paymentMethod"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <RadioGroup 
-                                  onValueChange={field.onChange} 
-                                  defaultValue={field.value}
-                                  className="flex flex-col space-y-1"
-                                >
-                                  <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-muted/50 cursor-pointer">
-                                    <RadioGroupItem value="card" id="card" />
-                                    <FormLabel htmlFor="card" className="flex items-center gap-2 cursor-pointer font-normal">
-                                      <CreditCard className="h-4 w-4" />
-                                      Carte bancaire
-                                    </FormLabel>
-                                  </div>
-                                  <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-muted/50 cursor-pointer">
-                                    <RadioGroupItem value="mobile" id="mobile" />
-                                    <FormLabel htmlFor="mobile" className="cursor-pointer font-normal">
-                                      Mobile Money
-                                    </FormLabel>
-                                  </div>
-                                  <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-muted/50 cursor-pointer">
-                                    <RadioGroupItem value="paypal" id="paypal" />
-                                    <FormLabel htmlFor="paypal" className="cursor-pointer font-normal">
-                                      PayPal
-                                    </FormLabel>
-                                  </div>
-                                </RadioGroup>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        {form.watch("paymentMethod") === "card" && (
-                          <div className="space-y-4 pt-2">
-                            <FormField
-                              control={form.control}
-                              name="cardNumber"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Numéro de carte</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="1234 5678 9012 3456" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <FormField
-                                control={form.control}
-                                name="expiryDate"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Date d'expiration</FormLabel>
-                                    <FormControl>
-                                      <Input placeholder="MM/YY" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              
-                              <FormField
-                                control={form.control}
-                                name="cvv"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>CVV</FormLabel>
-                                    <FormControl>
-                                      <Input placeholder="123" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
+                      <div className="space-y-2">
+                        <Label>Fournisseurs disponibles</Label>
+                        {availableProviders.length > 0 ? (
+                          <RadioGroup 
+                            defaultValue={availableProviders[0]?.id} 
+                            value={selectedProvider || undefined}
+                            onValueChange={setSelectedProvider}
+                            className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+                          >
+                            {availableProviders.map((provider) => (
+                              <div 
+                                key={provider.id} 
+                                className={`flex items-center space-x-2 border rounded-md p-3 ${
+                                  selectedProvider === provider.id ? 'border-primary bg-primary/5' : ''
+                                }`}
+                              >
+                                <RadioGroupItem value={provider.id} id={provider.id} />
+                                <Label htmlFor={provider.id} className="flex flex-1 cursor-pointer">
+                                  {provider.name}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        ) : (
+                          <div className="p-4 bg-muted/50 rounded-md text-center">
+                            <p className="text-sm text-muted-foreground">
+                              Aucun fournisseur Mobile Money disponible pour ce pays.
+                            </p>
                           </div>
                         )}
                       </div>
                       
-                      <Separator />
-                      
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Adresse de facturation</h3>
-                        
-                        <FormField
-                          control={form.control}
-                          name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Adresse</FormLabel>
-                              <FormControl>
-                                <Input placeholder="123 Rue Principale" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="city"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Ville</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Paris" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="postalCode"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Code postal</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="75000" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                      {selectedProvider && (
+                        <div className="space-y-2">
+                          <Label htmlFor="mobileNumber">Numéro de téléphone</Label>
+                          <Input id="mobileNumber" placeholder="Votre numéro Mobile Money" />
                         </div>
-                        
-                        <FormField
-                          control={form.control}
-                          name="country"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Pays</FormLabel>
-                              <FormControl>
-                                <Input placeholder="France" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="bank" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bankCountry">Pays</Label>
+                        <Select defaultValue={country} onValueChange={setCountry}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionnez votre pays" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((country) => (
+                              <SelectItem key={country.code} value={country.code}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       
-                      <div className="flex flex-col gap-2 pt-4">
-                        <Button 
-                          type="submit" 
-                          className="w-full bg-worldsell-orange-400 hover:bg-worldsell-orange-500"
-                          disabled={isProcessing}
-                        >
-                          {isProcessing ? (
-                            <>
-                              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                              Traitement en cours...
-                            </>
-                          ) : (
-                            <>Payer {total.toFixed(2)} USD</>
-                          )}
-                        </Button>
-                        <div className="flex justify-center items-center gap-1 text-xs text-muted-foreground">
-                          <Lock className="h-3 w-3" />
-                          <span>Paiement sécurisé</span>
-                        </div>
+                      <div className="space-y-2">
+                        <Label>Banques disponibles</Label>
+                        {availableProviders.length > 0 ? (
+                          <RadioGroup 
+                            defaultValue={availableProviders[0]?.id}
+                            value={selectedProvider || undefined}
+                            onValueChange={setSelectedProvider}
+                            className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+                          >
+                            {availableProviders.map((provider) => (
+                              <div 
+                                key={provider.id} 
+                                className={`flex items-center space-x-2 border rounded-md p-3 ${
+                                  selectedProvider === provider.id ? 'border-primary bg-primary/5' : ''
+                                }`}
+                              >
+                                <RadioGroupItem value={provider.id} id={`bank-${provider.id}`} />
+                                <Label htmlFor={`bank-${provider.id}`} className="flex flex-1 cursor-pointer">
+                                  {provider.name}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        ) : (
+                          <div className="p-4 bg-muted/50 rounded-md text-center">
+                            <p className="text-sm text-muted-foreground">
+                              Aucune banque disponible pour ce pays.
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </motion.div>
-            
-            {/* Récapitulatif de la commande */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Récapitulatif de la commande</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex justify-between gap-2">
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Qté: {item.quantity} • Type: {item.type === "course" ? "Formation" : item.type === "digital" ? "Numérique" : "Physique"}
+                    </TabsContent>
+
+                    <TabsContent value="transfer" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="transferCountry">Pays</Label>
+                        <Select defaultValue={country} onValueChange={setCountry}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionnez votre pays" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((country) => (
+                              <SelectItem key={country.code} value={country.code}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label>Services de transfert disponibles</Label>
+                        {availableProviders.length > 0 ? (
+                          <RadioGroup 
+                            defaultValue={availableProviders[0]?.id}
+                            value={selectedProvider || undefined}
+                            onValueChange={setSelectedProvider}
+                            className="grid grid-cols-1 gap-2"
+                          >
+                            {availableProviders.map((provider) => (
+                              <div 
+                                key={provider.id} 
+                                className={`flex items-center space-x-2 border rounded-md p-3 ${
+                                  selectedProvider === provider.id ? 'border-primary bg-primary/5' : ''
+                                }`}
+                              >
+                                <RadioGroupItem value={provider.id} id={`transfer-${provider.id}`} />
+                                <Label htmlFor={`transfer-${provider.id}`} className="flex flex-1 cursor-pointer">
+                                  {provider.name}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        ) : (
+                          <div className="p-4 bg-muted/50 rounded-md text-center">
+                            <p className="text-sm text-muted-foreground">
+                              Aucun service de transfert disponible pour ce pays.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {selectedProvider && selectedProvider === "western_union" && (
+                        <div className="p-4 bg-muted rounded-md">
+                          <p className="text-sm">
+                            Après validation de votre commande, vous recevrez les instructions pour effectuer votre transfert Western Union.
                           </p>
                         </div>
-                        <div className="font-medium text-right">
-                          {item.price.toFixed(2)} USD
-                        </div>
-                      </div>
-                    ))}
-                    
-                    <Separator />
-                    
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Sous-total</span>
-                      <span>{subtotal.toFixed(2)} USD</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Livraison</span>
-                      <span>{shipping.toFixed(2)} USD</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Taxes</span>
-                      <span>{tax.toFixed(2)} USD</span>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="flex justify-between font-bold">
-                      <span>Total</span>
-                      <span>{total.toFixed(2)} USD</span>
-                    </div>
-                  </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
-                <CardFooter className="flex flex-col items-start gap-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <ShieldCheck className="h-4 w-4 text-worldsell-blue-500" />
-                    <span>Garantie satisfait ou remboursé pendant 30 jours</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-worldsell-blue-500" />
-                    <span>Transactions sécurisées par SSL</span>
+                <CardFooter className="flex-col items-start gap-2">
+                  <div className="flex items-start gap-2">
+                    <ShieldCheck className="text-green-500 h-5 w-5 mt-0.5" />
+                    <p className="text-sm text-muted-foreground">
+                      Toutes les transactions sont sécurisées et chiffrées
+                    </p>
                   </div>
                 </CardFooter>
               </Card>
-            </motion.div>
+              
+              <div className="mt-6 flex justify-end">
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full md:w-auto bg-worldsell-blue-500 hover:bg-worldsell-blue-600"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>Traitement en cours...</>
+                  ) : (
+                    <>
+                      Payer maintenant
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+
+          {/* Résumé de la commande */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-8">
+              <CardHeader>
+                <CardTitle>Résumé de votre commande</CardTitle>
+                <CardDescription>
+                  {cartItems.length} article{cartItems.length > 1 ? 's' : ''} dans votre panier
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="flex justify-between py-2">
+                      <div className="flex gap-3">
+                        <div className="text-muted-foreground">
+                          {item.quantity}x
+                        </div>
+                        <div>
+                          <p className="font-medium line-clamp-1">{item.name}</p>
+                          <Badge variant="outline" className="mt-1">
+                            {item.category}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="font-semibold">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Sous-total</span>
+                    <span>${cartTotal.toFixed(2)}</span>
+                  </div>
+
+                  {cartItems.some(item => item.type === "physical") && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Livraison</span>
+                      <span className="text-green-600">Gratuite</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Taxes</span>
+                    <span>$0.00</span>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-between text-lg font-semibold">
+                  <span>Total</span>
+                  <span>${cartTotal.toFixed(2)}</span>
+                </div>
+
+                <div className="pt-4 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <PackageCheck className="text-worldsell-blue-500 h-5 w-5 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium">Livraison rapide</p>
+                      <p className="text-xs text-muted-foreground">
+                        {cartItems.some(item => item.type === "physical") 
+                          ? "3-5 jours ouvrables pour les produits physiques"
+                          : "Accès immédiat aux produits numériques"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-2">
+                    <Check className="text-worldsell-blue-500 h-5 w-5 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium">Garantie satisfait ou remboursé</p>
+                      <p className="text-xs text-muted-foreground">
+                        30 jours pour changer d'avis
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
-      
       <Footer />
     </div>
   );
