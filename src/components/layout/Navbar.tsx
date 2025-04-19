@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingCart, Menu, X, User, ChevronDown } from "lucide-react";
+import { Search, Menu, X, User, ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -29,12 +29,14 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import AuthButtons from "@/components/auth/AuthButtons";
+import { useCart } from "@/contexts/CartContext";
 
 const Navbar = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Temporaire, à remplacer par un vrai état d'authentification
+  const { cartCount } = useCart();
 
   const navItems = [
     { name: "Accueil", href: "/" },
@@ -235,16 +237,6 @@ const Navbar = () => {
           ) : (
             <AuthButtons />
           )}
-
-          <Button variant="ghost" size="icon" asChild className="relative">
-            <Link to="/cart">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="sr-only">Panier</span>
-              <span className="absolute -top-1 -right-1 bg-worldsell-orange-400 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
-            </Link>
-          </Button>
         </div>
       </div>
     </header>

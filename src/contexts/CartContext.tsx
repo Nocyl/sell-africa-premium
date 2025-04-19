@@ -1,5 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { toast } from "sonner";
 
 // Type for cart items
 export interface CartItem {
@@ -61,20 +62,33 @@ export const CartProvider = ({ children }: CartProviderProps) => {
           ...updatedItems[existingItemIndex],
           quantity: updatedItems[existingItemIndex].quantity + (newItem.quantity || 1)
         };
+        toast.success(`Quantité de ${newItem.name} mise à jour dans le panier`);
         return updatedItems;
       } else {
         // Add new item
+        toast.success(`${newItem.name} ajouté au panier`);
         return [...prevItems, { ...newItem, quantity: newItem.quantity || 1 }];
       }
     });
     
     // Show cart popup when adding items
     setShowCartPopup(true);
+    
+    // Auto-close popup after 7 seconds
+    setTimeout(() => {
+      closeCartPopup();
+    }, 7000);
   };
 
   // Remove item from cart
   const removeFromCart = (itemId: number) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+    setCartItems(prevItems => {
+      const itemToRemove = prevItems.find(item => item.id === itemId);
+      if (itemToRemove) {
+        toast.success(`${itemToRemove.name} retiré du panier`);
+      }
+      return prevItems.filter(item => item.id !== itemId);
+    });
   };
 
   // Increase item quantity
@@ -88,18 +102,28 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
   // Decrease item quantity
   const decreaseQuantity = (itemId: number) => {
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId && item.quantity > 1 
-          ? { ...item, quantity: item.quantity - 1 } 
-          : item
-      )
-    );
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item => {
+        if (item.id === itemId) {
+          if (item.quantity > 1) {
+            return { ...item, quantity: item.quantity - 1 };
+          } else {
+            // If quantity would be 0, remove the item completely
+            toast.success(`${item.name} retiré du panier`);
+            return null;
+          }
+        }
+        return item;
+      }).filter(Boolean) as CartItem[];
+      
+      return updatedItems;
+    });
   };
 
   // Clear entire cart
   const clearCart = () => {
     setCartItems([]);
+    toast.success("Panier vidé avec succès");
   };
 
   // Close cart popup
