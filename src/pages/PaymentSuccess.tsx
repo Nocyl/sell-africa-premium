@@ -7,13 +7,18 @@ import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { useEffect } from "react";
+import { useCart } from "@/contexts/CartContext";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
+  const { clearCart } = useCart();
   const orderNumber = "WS" + Math.floor(100000 + Math.random() * 900000);
 
   // Effet de confetti lorsque la page se charge
   useEffect(() => {
+    // Clear cart on successful payment
+    clearCart();
+    
     const launchConfetti = () => {
       confetti({
         particleCount: 100,
@@ -28,7 +33,7 @@ const PaymentSuccess = () => {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [clearCart]);
 
   // Redirections
   const handleContinueShopping = () => {

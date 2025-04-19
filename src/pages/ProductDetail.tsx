@@ -13,6 +13,8 @@ import Footer from "@/components/layout/Footer";
 import NewsletterSection from "@/components/home/NewsletterSection";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
+import CartPopup from "@/components/cart/CartPopup";
 
 // Types pour les produits
 interface Product {
@@ -153,6 +155,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+  const { addToCart, cartCount, showCartPopup, closeCartPopup } = useCart();
 
   useEffect(() => {
     // Simuler une requête API
@@ -167,17 +170,36 @@ const ProductDetail = () => {
   }, [id, navigate]);
 
   const handleAddToCart = () => {
-    toast.success(`${product?.name} ajouté au panier`);
-    // Ici, dans une véritable application, nous ajouterions la logique pour ajouter au panier
-    // Pour l'instant, nous allons simplement simuler
-    setTimeout(() => {
-      navigate("/cart");
-    }, 1000);
+    if (product) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.type === 'digital' ? 'Digital' : 
+                product.type === 'course' ? 'Formation' : 'Physique',
+        quantity: quantity,
+        image: `https://source.unsplash.com/random/300x300/?${product.type}`,
+        type: product.type
+      });
+      toast.success(`${product?.name} ajouté au panier`);
+    }
   };
 
   const handleBuyNow = () => {
-    toast.success(`Achat immédiat pour ${product?.name}`);
-    navigate("/checkout");
+    if (product) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.type === 'digital' ? 'Digital' : 
+                product.type === 'course' ? 'Formation' : 'Physique',
+        quantity: quantity,
+        image: `https://source.unsplash.com/random/300x300/?${product.type}`,
+        type: product.type
+      });
+      toast.success(`Achat immédiat pour ${product?.name}`);
+      navigate("/checkout");
+    }
   };
 
   if (!product) {
@@ -412,6 +434,11 @@ const ProductDetail = () => {
         <NewsletterSection />
       </main>
       
+      <CartPopup 
+        isOpen={showCartPopup} 
+        onClose={closeCartPopup} 
+        itemCount={cartCount} 
+      />
       <Footer />
     </div>
   );

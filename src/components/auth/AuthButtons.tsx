@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import CartIndicator from "@/components/cart/CartIndicator";
 
 const AuthButtons = () => {
   const navigate = useNavigate();
@@ -19,11 +20,13 @@ const AuthButtons = () => {
 
   return (
     <motion.div 
-      className="flex gap-2"
+      className="flex gap-2 items-center"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
+      <CartIndicator />
+      
       <Button 
         variant="outline" 
         size="sm" 
