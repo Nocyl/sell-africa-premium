@@ -1,10 +1,22 @@
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 const AuthButtons = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
+  const handleRegister = () => {
+    navigate("/register");
+    toast.success("Bienvenue sur notre page d'inscription !");
+  };
+
   return (
     <motion.div 
       className="flex gap-2"
@@ -15,34 +27,28 @@ const AuthButtons = () => {
       <Button 
         variant="outline" 
         size="sm" 
-        asChild 
+        onClick={handleLogin}
         className="hidden sm:flex hover:scale-105 transition-transform"
       >
-        <Link to="/login" className="flex items-center gap-1">
-          <LogIn className="w-4 h-4" />
-          <span>Se connecter</span>
-        </Link>
+        <LogIn className="w-4 h-4 mr-1" />
+        <span>Se connecter</span>
       </Button>
       <Button 
         className="bg-worldsell-orange-400 hover:bg-worldsell-orange-500 text-white hidden sm:flex hover:scale-105 transition-transform" 
         size="sm" 
-        asChild
+        onClick={handleRegister}
       >
-        <Link to="/register" className="flex items-center gap-1">
-          <UserPlus className="w-4 h-4" />
-          <span>S'inscrire</span>
-        </Link>
+        <UserPlus className="w-4 h-4 mr-1" />
+        <span>S'inscrire</span>
       </Button>
       
       <Button 
         variant="ghost" 
         size="icon" 
-        asChild 
+        onClick={handleLogin}
         className="sm:hidden hover:scale-105 transition-transform"
       >
-        <Link to="/login">
-          <LogIn className="h-5 w-5" />
-        </Link>
+        <LogIn className="h-5 w-5" />
       </Button>
     </motion.div>
   );

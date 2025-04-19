@@ -168,7 +168,11 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     toast.success(`${product?.name} ajouté au panier`);
-    // Ici on pourrait implémenter la logique d'ajout au panier
+    // Ici, dans une véritable application, nous ajouterions la logique pour ajouter au panier
+    // Pour l'instant, nous allons simplement simuler
+    setTimeout(() => {
+      navigate("/cart");
+    }, 1000);
   };
 
   const handleBuyNow = () => {
@@ -304,7 +308,13 @@ const ProductDetail = () => {
                 >
                   <Heart className={`h-4 w-4 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => {
+                    toast.success("Lien de partage copié !");
+                  }}
+                >
                   <Share2 className="h-4 w-4" />
                 </Button>
               </div>

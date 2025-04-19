@@ -1,14 +1,44 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ShoppingBag, ArrowRight } from "lucide-react";
+import { CheckCircle, ShoppingBag, ArrowRight, Home, Sparkles } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
+import { useEffect } from "react";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const orderNumber = "WS" + Math.floor(100000 + Math.random() * 900000);
+
+  // Effet de confetti lorsque la page se charge
+  useEffect(() => {
+    const launchConfetti = () => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    };
+    
+    // Lancer le confetti après un court délai
+    const timer = setTimeout(() => {
+      launchConfetti();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Redirections
+  const handleContinueShopping = () => {
+    navigate("/");
+  };
+
+  const handleViewOrder = () => {
+    // Pour le moment, nous n'avons pas de page profile/orders, rediriger vers la page d'accueil
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -43,21 +73,29 @@ const PaymentSuccess = () => {
               
               <div className="bg-muted/30 rounded-lg p-6 mb-8">
                 <div className="text-sm text-muted-foreground mb-2">Numéro de commande</div>
-                <div className="text-xl font-medium">{orderNumber}</div>
+                <div className="text-xl font-medium flex items-center justify-center gap-2">
+                  {orderNumber}
+                  <motion.div
+                    animate={{ rotate: [0, 20, -20, 0] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  >
+                    <Sparkles className="h-5 w-5 text-worldsell-orange-400" />
+                  </motion.div>
+                </div>
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   variant="outline"
                   className="gap-2"
-                  onClick={() => navigate("/")}
+                  onClick={handleContinueShopping}
                 >
                   <ShoppingBag className="h-4 w-4" />
                   Continuer vos achats
                 </Button>
                 <Button
                   className="gap-2 bg-worldsell-blue-500 hover:bg-worldsell-blue-600"
-                  onClick={() => navigate("/profile/orders")}
+                  onClick={handleViewOrder}
                 >
                   Voir ma commande
                   <ArrowRight className="h-4 w-4" />
