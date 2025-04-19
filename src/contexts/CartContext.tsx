@@ -25,6 +25,8 @@ interface CartContextType {
   showCartPopup: boolean;
   setShowCartPopup: (show: boolean) => void;
   closeCartPopup: () => void;
+  hasPhysicalItems: boolean;
+  hasDigitalItems: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -52,6 +54,10 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   
   // Calculate total price
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Check if cart has physical or digital items
+  const hasPhysicalItems = cartItems.some(item => item.type === "physical");
+  const hasDigitalItems = cartItems.some(item => item.type === "digital" || item.type === "course");
 
   // Add item to cart
   const addToCart = (newItem: CartItem) => {
@@ -147,7 +153,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       cartTotal,
       showCartPopup,
       setShowCartPopup,
-      closeCartPopup
+      closeCartPopup,
+      hasPhysicalItems,
+      hasDigitalItems
     }}>
       {children}
     </CartContext.Provider>

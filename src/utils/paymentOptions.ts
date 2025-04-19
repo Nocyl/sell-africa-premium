@@ -6,6 +6,7 @@ export interface PaymentProvider {
   logo: string;
   supportedCountries: string[];
   supportedMethods: PaymentMethod[];
+  primary?: boolean; // Indique si c'est le fournisseur principal pour un pays
 }
 
 export interface PaymentMethod {
@@ -52,7 +53,8 @@ export const paymentProviders: PaymentProvider[] = [
     supportedMethods: [
       { id: "mobile_money", name: "Mobile Money", icon: "mobile" },
       { id: "card", name: "Carte bancaire", icon: "credit-card" }
-    ]
+    ],
+    primary: true // Principal pour ces pays
   },
   {
     id: "paydunya",
@@ -66,13 +68,23 @@ export const paymentProviders: PaymentProvider[] = [
     ]
   },
   {
+    id: "paypal",
+    name: "PayPal",
+    logo: "/images/paypal.png",
+    supportedCountries: countries.map(country => country.code),
+    supportedMethods: [
+      { id: "paypal", name: "PayPal", icon: "credit-card" }
+    ]
+  },
+  {
     id: "pawapay",
     name: "PawaPay",
     logo: "/images/pawapay.png",
-    supportedCountries: ["GH", "KE", "ZA", "NG", "TZ", "UG"],
+    supportedCountries: ["GH", "KE", "ZA", "NG"],
     supportedMethods: [
       { id: "mobile_money", name: "Mobile Money", icon: "mobile" }
-    ]
+    ],
+    primary: true // Principal pour ces pays
   },
   {
     id: "monetbil",
@@ -80,10 +92,9 @@ export const paymentProviders: PaymentProvider[] = [
     logo: "/images/monetbil.png",
     supportedCountries: ["CM", "CD", "CG", "GA", "GQ"],
     supportedMethods: [
-      { id: "mobile_money", name: "Mobile Money", icon: "mobile" },
-      { id: "orange_money", name: "Orange Money", icon: "mobile" },
-      { id: "mtn_momo", name: "MTN MoMo", icon: "mobile" }
-    ]
+      { id: "mobile_money", name: "Mobile Money", icon: "mobile" }
+    ],
+    primary: true // Principal pour ces pays
   },
   {
     id: "flutterwave",
@@ -97,24 +108,6 @@ export const paymentProviders: PaymentProvider[] = [
     ]
   },
   {
-    id: "mtn_momo",
-    name: "MTN Mobile Money",
-    logo: "/images/mtn.png",
-    supportedCountries: ["CI", "CM", "GH", "UG", "ZM", "RW", "SL"],
-    supportedMethods: [
-      { id: "mtn_momo", name: "MTN MoMo", icon: "mobile" }
-    ]
-  },
-  {
-    id: "orange_money",
-    name: "Orange Money",
-    logo: "/images/orange.png",
-    supportedCountries: ["SN", "CI", "ML", "BF", "GN", "CM", "NE", "MG"],
-    supportedMethods: [
-      { id: "orange_money", name: "Orange Money", icon: "mobile" }
-    ]
-  },
-  {
     id: "western_union",
     name: "Western Union",
     logo: "/images/western_union.png",
@@ -125,15 +118,44 @@ export const paymentProviders: PaymentProvider[] = [
     ]
   },
   {
-    id: "express_cash",
-    name: "Express Cash",
-    logo: "/images/express_cash.png",
+    id: "moneygram",
+    name: "MoneyGram",
+    logo: "/images/moneygram.png",
     supportedCountries: countries.map(country => country.code),
     supportedMethods: [
       { id: "cash_pickup", name: "Retrait en espèces", icon: "cash" }
     ]
   }
 ];
+
+// Fonction pour obtenir le fournisseur principal pour un pays
+export const getPrimaryProvider = (countryCode: string, method: PaymentType): PaymentProvider | null => {
+  // Chercher d'abord un fournisseur marqué comme primaire
+  const primaryProvider = paymentProviders.find(provider => 
+    provider.supportedCountries.includes(countryCode) && 
+    provider.primary &&
+    provider.supportedMethods.some(m => {
+      if (method === "mobile") {
+        return m.id.includes("mobile") || m.id.includes("momo") || m.id.includes("money");
+      } else if (method === "bank") {
+        return m.id.includes("bank");
+      } else if (method === "card") {
+        return m.id.includes("card") || m.id === "paypal";
+      } else if (method === "transfer") {
+        return m.id.includes("transfer") || m.id.includes("cash");
+      }
+      return false;
+    })
+  );
+
+  // Si aucun fournisseur primaire, prendre le premier disponible
+  if (!primaryProvider) {
+    const providers = getAvailableProviders(countryCode, method);
+    return providers.length > 0 ? providers[0] : null;
+  }
+
+  return primaryProvider;
+};
 
 // Fonction pour obtenir les fournisseurs de paiement disponibles par pays et méthode
 export const getAvailableProviders = (countryCode: string, method: PaymentType): PaymentProvider[] => {
@@ -145,9 +167,9 @@ export const getAvailableProviders = (countryCode: string, method: PaymentType):
       } else if (method === "bank") {
         return m.id.includes("bank");
       } else if (method === "card") {
-        return m.id.includes("card");
+        return m.id.includes("card") || m.id === "paypal";
       } else if (method === "transfer") {
-        return m.id.includes("transfer");
+        return m.id.includes("transfer") || m.id.includes("cash");
       }
       return false;
     })

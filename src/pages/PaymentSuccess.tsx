@@ -1,7 +1,7 @@
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ShoppingBag, ArrowRight, Home, Sparkles } from "lucide-react";
+import { CheckCircle, ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
@@ -11,12 +11,15 @@ import { useCart } from "@/contexts/CartContext";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { clearCart } = useCart();
-  const orderNumber = "WS" + Math.floor(100000 + Math.random() * 900000);
+  
+  // Récupérer l'ID de commande à partir de location.state ou en générer un nouveau si nécessaire
+  const orderId = location.state?.orderId || "WS" + Math.floor(100000 + Math.random() * 900000);
 
   // Effet de confetti lorsque la page se charge
   useEffect(() => {
-    // Clear cart on successful payment
+    // Clear cart on successful payment if not already cleared
     clearCart();
     
     const launchConfetti = () => {
@@ -37,7 +40,7 @@ const PaymentSuccess = () => {
 
   // Redirections
   const handleContinueShopping = () => {
-    navigate("/");
+    navigate("/products");
   };
 
   const handleViewOrder = () => {
@@ -79,10 +82,10 @@ const PaymentSuccess = () => {
               <div className="bg-muted/30 rounded-lg p-6 mb-8">
                 <div className="text-sm text-muted-foreground mb-2">Numéro de commande</div>
                 <div className="text-xl font-medium flex items-center justify-center gap-2">
-                  {orderNumber}
+                  {orderId}
                   <motion.div
                     animate={{ rotate: [0, 20, -20, 0] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
+                    transition={{ repeat: Infinity, duration: 2, repeatDelay: 0.5 }}
                   >
                     <Sparkles className="h-5 w-5 text-worldsell-orange-400" />
                   </motion.div>
