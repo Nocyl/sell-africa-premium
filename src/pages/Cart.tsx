@@ -47,7 +47,7 @@ const Cart = () => {
           transition={{ duration: 0.5 }}
         >
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-1xl font-bold">Votre Panier ({cartCount} {cartCount > 1 ? 'articles' : 'article'})</h1>
+            <h1 className="text-2xl font-bold">Votre Panier ({cartCount} {cartCount > 1 ? 'articles' : 'article'})</h1>
             <Button 
               variant="ghost" 
               className="gap-2" 
