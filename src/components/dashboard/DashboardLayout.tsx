@@ -39,12 +39,14 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import { AdminSidebarMenu } from "./AdminSidebarItems";
+import { SellerSidebarMenu } from "./SellerSidebarItems";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const commonMenuItems = [
+const userMenuItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
@@ -65,6 +67,11 @@ const commonMenuItems = [
     icon: User,
     href: "/dashboard/profile",
   },
+  {
+    title: "Paramètres",
+    icon: Settings,
+    href: "/dashboard/settings",
+  },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -81,6 +88,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { id: 1, from: "Support", content: "Besoin d'aide?", time: "Il y a 20 min", read: false },
     { id: 2, from: "Client", content: "Question sur le produit", time: "Il y a 3 heures", read: true },
   ]);
+  
+  // Détecter quel dashboard est affiché
+  const isAdminDashboard = location.pathname.startsWith('/admin');
+  const isSellerDashboard = location.pathname.startsWith('/seller');
+  const isUserDashboard = !isAdminDashboard && !isSellerDashboard;
   
   // Fermer le menu mobile lors du changement de route
   useEffect(() => {
@@ -104,6 +116,56 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
   const unreadMessagesCount = messages.filter(m => !m.read).length;
 
+  const renderDashboardMenu = () => {
+    if (isAdminDashboard) {
+      return <AdminSidebarMenu collapsed={false} />;
+    } else if (isSellerDashboard) {
+      return <SellerSidebarMenu collapsed={false} />;
+    } else {
+      return (
+        <div className="space-y-1">
+          {userMenuItems.map((item) => (
+            <NavLink
+              key={item.href}
+              to={item.href}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-gray-100"
+                )
+              }
+            >
+              <item.icon className="h-5 w-5" />
+              <span>{item.title}</span>
+            </NavLink>
+          ))}
+        </div>
+      );
+    }
+  };
+
+  const getDashboardTitle = () => {
+    if (isAdminDashboard) {
+      return "Administration";
+    } else if (isSellerDashboard) {
+      return "Tableau de bord vendeur";
+    } else {
+      return "Mon espace";
+    }
+  };
+
+  const getDashboardDescription = () => {
+    if (isAdminDashboard) {
+      return "Tableau de bord administrateur WorldSell";
+    } else if (isSellerDashboard) {
+      return "Gérez vos produits, cours et ventes";
+    } else {
+      return "Votre espace personnel WorldSell";
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
@@ -111,7 +173,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <SidebarHeader className="border-b px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold">WorldSell</h2>
-              <Badge variant="outline" className="text-xs font-normal">Pro</Badge>
+              {isAdminDashboard && (
+                <Badge variant="destructive" className="text-xs font-normal">Admin</Badge>
+              )}
+              {isSellerDashboard && (
+                <Badge variant="outline" className="text-xs font-normal">Pro</Badge>
+              )}
+              {isUserDashboard && (
+                <Badge variant="secondary" className="text-xs font-normal">Client</Badge>
+              )}
             </div>
             <Button 
               variant="ghost" 
@@ -150,48 +220,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
               </form>
               
-              <div className="space-y-1 mb-6">
-                <h4 className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Navigation
-                </h4>
-                {commonMenuItems.map((item) => (
-                  <NavLink
-                    key={item.href}
-                    to={item.href}
-                    className={({ isActive }) =>
-                      cn(
-                        "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-gray-100"
-                      )
-                    }
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
-                  </NavLink>
-                ))}
-              </div>
-              
-              <div className="space-y-1">
-                <h4 className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Paramètres
-                </h4>
-                <NavLink
-                  to="/dashboard/settings"
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-gray-100"
-                    )
-                  }
-                >
-                  <Settings className="h-5 w-5" />
-                  <span>Paramètres</span>
-                </NavLink>
-              </div>
+              {renderDashboardMenu()}
             </div>
           </SidebarContent>
           <SidebarFooter className={cn(
@@ -358,7 +387,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <User className="h-4 w-4 mr-2" />
                     Profil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/dashboard/settings")}>
+                  <DropdownMenuItem onClick={() => {
+                    if (isAdminDashboard) {
+                      navigate("/admin/settings");
+                    } else if (isSellerDashboard) {
+                      navigate("/seller/settings");
+                    } else {
+                      navigate("/dashboard/settings");
+                    }
+                  }}>
                     <Settings className="h-4 w-4 mr-2" />
                     Paramètres
                   </DropdownMenuItem>
@@ -378,7 +415,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </header>
           
-          <main className="flex-1 p-4 md:p-8 overflow-auto">{children}</main>
+          <main className="flex-1 p-4 md:p-8 overflow-auto">
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold">{getDashboardTitle()}</h1>
+              <p className="text-muted-foreground">
+                {getDashboardDescription()}
+              </p>
+            </div>
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>

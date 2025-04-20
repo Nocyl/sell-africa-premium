@@ -25,7 +25,10 @@ import {
   LineChart,
   Line,
   BarChart,
-  Bar
+  Bar,
+  PieChart,
+  Pie,
+  Cell
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -58,6 +61,14 @@ const categoriesData = [
   { name: "Business", value: 1900 },
   { name: "Mobile", value: 1500 },
 ];
+
+const pieData = [
+  { name: "Formations", value: 56 },
+  { name: "Prod. digitaux", value: 24 },
+  { name: "Prod. physiques", value: 20 },
+];
+
+const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE'];
 
 export default function AdminDashboard() {
   const [period, setPeriod] = useState("month");
@@ -152,15 +163,12 @@ export default function AdminDashboard() {
     <DashboardLayout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">Administration</h1>
-            <p className="text-muted-foreground">
-              Tableau de bord administrateur WorldSell
-            </p>
+          <div className="hidden md:block">
+            {/* Le titre est maintenant affiché dans le DashboardLayout */}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button>Exporter les données</Button>
-            <Button variant="outline">Paramètres</Button>
+            <Button variant="outline" onClick={() => window.location.href = "/admin/settings"}>Paramètres</Button>
           </div>
         </div>
 
@@ -191,88 +199,90 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
-          <Card className="col-span-1 md:col-span-2">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Revenus par type de produit</CardTitle>
-                <Tabs value={period} onValueChange={setPeriod} className="w-[230px]">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="week">Semaine</TabsTrigger>
-                    <TabsTrigger value="month">Mois</TabsTrigger>
-                    <TabsTrigger value="year">Année</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={revenueData}>
-                    <defs>
-                      <linearGradient id="colorCours" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorDigital" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorPhysique" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#ffc658" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" />
-                    <YAxis 
-                      tickFormatter={(value) => 
-                        new Intl.NumberFormat('fr-FR', {
-                          notation: 'compact',
-                          compactDisplay: 'short',
-                        }).format(value)
-                      }
-                    />
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <Tooltip 
-                      formatter={(value) => 
-                        new Intl.NumberFormat('fr-FR', {
-                          style: 'currency',
-                          currency: 'XOF',
-                          maximumFractionDigits: 0,
-                        }).format(Number(value))
-                      }
-                    />
-                    <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="cours" 
-                      name="Formations"
-                      stroke="#8884d8" 
-                      fillOpacity={1} 
-                      fill="url(#colorCours)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="digital" 
-                      name="Produits digitaux"
-                      stroke="#82ca9d" 
-                      fillOpacity={1} 
-                      fill="url(#colorDigital)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="physique" 
-                      name="Produits physiques"
-                      stroke="#ffc658" 
-                      fillOpacity={1} 
-                      fill="url(#colorPhysique)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+        <Card className="col-span-1 md:col-span-2">
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle>Revenus par type de produit</CardTitle>
+              <Tabs value={period} onValueChange={setPeriod} className="w-full sm:w-[230px]">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="week">Semaine</TabsTrigger>
+                  <TabsTrigger value="month">Mois</TabsTrigger>
+                  <TabsTrigger value="year">Année</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueData}>
+                  <defs>
+                    <linearGradient id="colorCours" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorDigital" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorPhysique" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#ffc658" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis 
+                    tickFormatter={(value) => 
+                      new Intl.NumberFormat('fr-FR', {
+                        notation: 'compact',
+                        compactDisplay: 'short',
+                      }).format(value)
+                    }
+                    tick={{ fontSize: 12 }}
+                  />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <Tooltip 
+                    formatter={(value) => 
+                      new Intl.NumberFormat('fr-FR', {
+                        style: 'currency',
+                        currency: 'XOF',
+                        maximumFractionDigits: 0,
+                      }).format(Number(value))
+                    }
+                    wrapperStyle={{ fontSize: '12px' }}
+                  />
+                  <Legend iconSize={10} wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="cours" 
+                    name="Formations"
+                    stroke="#8884d8" 
+                    fillOpacity={1} 
+                    fill="url(#colorCours)" 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="digital" 
+                    name="Produits digitaux"
+                    stroke="#82ca9d" 
+                    fillOpacity={1} 
+                    fill="url(#colorDigital)" 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="physique" 
+                    name="Produits physiques"
+                    stroke="#ffc658" 
+                    fillOpacity={1} 
+                    fill="url(#colorPhysique)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
+        <div className="grid gap-8 md:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Croissance utilisateurs</CardTitle>
@@ -282,9 +292,9 @@ export default function AdminDashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={usersData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip wrapperStyle={{ fontSize: '12px' }} />
                     <Line 
                       type="monotone" 
                       dataKey="users" 
@@ -302,14 +312,14 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Top des catégories</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
+            <CardContent className="flex flex-col md:flex-row items-center justify-center">
+              <div className="h-[300px] w-full md:w-1/2">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={categoriesData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip wrapperStyle={{ fontSize: '12px' }} />
                     <Bar 
                       dataKey="value" 
                       name="Ventes"
@@ -317,6 +327,32 @@ export default function AdminDashboard() {
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="h-[300px] w-full md:w-1/2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={90}
+                      fill="#8884d8"
+                      paddingAngle={5}
+                      dataKey="value"
+                      label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value) => [`${value}%`, "Pourcentage"]} 
+                      wrapperStyle={{ fontSize: '12px' }}
+                    />
+                  </PieChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
