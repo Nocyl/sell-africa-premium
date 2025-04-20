@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
@@ -6,20 +5,16 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { clearCart } = useCart();
+  const [orderId] = useState(location.state?.orderId || "WS" + Math.floor(100000 + Math.random() * 900000));
   
-  // Récupérer l'ID de commande à partir de location.state ou en générer un nouveau si nécessaire
-  const orderId = location.state?.orderId || "WS" + Math.floor(100000 + Math.random() * 900000);
-
-  // Effet de confetti lorsque la page se charge
   useEffect(() => {
-    // Clear cart on successful payment if not already cleared
     clearCart();
     
     const launchConfetti = () => {
@@ -30,22 +25,15 @@ const PaymentSuccess = () => {
       });
     };
     
-    // Lancer le confetti après un court délai
-    const timer = setTimeout(() => {
-      launchConfetti();
-    }, 500);
-    
-    return () => clearTimeout(timer);
+    launchConfetti();
   }, [clearCart]);
 
-  // Redirections
   const handleContinueShopping = () => {
     navigate("/products");
   };
 
   const handleViewOrder = () => {
-    // Pour le moment, nous n'avons pas de page profile/orders, rediriger vers la page d'accueil
-    navigate("/");
+    navigate("/dashboard/orders");
   };
 
   return (
@@ -61,9 +49,6 @@ const PaymentSuccess = () => {
             transition={{ duration: 0.5 }}
           >
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
               className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
             >
               <CheckCircle className="h-10 w-10 text-green-600" />

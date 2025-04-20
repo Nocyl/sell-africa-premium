@@ -20,6 +20,11 @@ import ProductDetail from "./pages/ProductDetail";
 import CourseDetail from "./pages/CourseDetail";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import UserDashboard from "./pages/dashboard/UserDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import DashboardOrders from "./pages/dashboard/DashboardOrders";
+import DashboardCourses from "./pages/dashboard/DashboardCourses";
+import DashboardProfile from "./pages/dashboard/DashboardProfile";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +49,11 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/dashboard/orders" element={<DashboardOrders />} />
+            <Route path="/dashboard/courses" element={<DashboardCourses />} />
+            <Route path="/dashboard/profile" element={<DashboardProfile />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
