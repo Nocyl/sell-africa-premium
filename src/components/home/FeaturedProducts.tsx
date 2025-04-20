@@ -3,8 +3,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { cn } from "@/lib/utils";
 
 interface Product {
   id: number;
@@ -13,6 +15,9 @@ interface Product {
   image: string;
   type: "digital" | "physical" | "course";
   category: string;
+  sponsored?: boolean;
+  sellerId?: number;
+  sellerName?: string;
 }
 
 const products: Product[] = [
@@ -22,7 +27,10 @@ const products: Product[] = [
     price: 25000,
     image: "/images/products/react-course.webp",
     type: "course",
-    category: "Development"
+    category: "Development",
+    sponsored: true,
+    sellerId: 101,
+    sellerName: "TechEdu Pro"
   },
   {
     id: 2,
@@ -30,7 +38,10 @@ const products: Product[] = [
     price: 8000,
     image: "/images/products/t-shirt-worldsell.webp",
     type: "physical",
-    category: "Clothing"
+    category: "Clothing",
+    sponsored: true,
+    sellerId: 102,
+    sellerName: "ModaStyle"
   },
   {
     id: 3,
@@ -38,7 +49,10 @@ const products: Product[] = [
     price: 15000,
     image: "/images/products/ui-ux-kit.webp",
     type: "digital",
-    category: "Design"
+    category: "Design",
+    sponsored: true,
+    sellerId: 103,
+    sellerName: "DesignMasters"
   },
 ];
 
@@ -64,20 +78,36 @@ export default function FeaturedProducts() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
           <Card key={product.id} className="product-card overflow-hidden transition-all duration-300 hover:shadow-lg">
-            <CardContent className="p-4">
+            <CardContent className="p-4 relative">
+              {product.sponsored && (
+                <Badge className="absolute top-6 right-6 bg-gradient-to-r from-amber-500 to-yellow-500 text-white">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  Sponsorisé
+                </Badge>
+              )}
               <img
                 src={product.image}
                 alt={product.name}
                 className="w-full h-48 object-cover rounded-md mb-4 transition-transform duration-300 hover:scale-105"
               />
               <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-              <p className="text-gray-600">{product.category}</p>
-              <p className="text-xl font-bold text-primary mt-2">
+              <p className="text-gray-600 flex items-center text-sm">
+                {product.category}
+                {product.sellerName && (
+                  <span className="ml-auto text-xs text-gray-500">
+                    Par {product.sellerName}
+                  </span>
+                )}
+              </p>
+              <div className={cn(
+                "text-xl font-bold mt-2",
+                product.sponsored ? "text-primary" : "text-gray-900"
+              )}>
                 {product.price.toLocaleString('fr-FR', {
                   style: 'currency',
                   currency: 'XOF',
                 })}
-              </p>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between items-center p-4 bg-gray-50">
               <Button onClick={() => navigate(`/product/${product.id}`)}>
