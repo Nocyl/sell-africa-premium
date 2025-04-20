@@ -22,6 +22,7 @@ import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import SellerDashboard from "./pages/dashboard/SellerDashboard";
 import DashboardOrders from "./pages/dashboard/DashboardOrders";
 import DashboardCourses from "./pages/dashboard/DashboardCourses";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/dashboard/courses" element={<DashboardCourses />} />
             <Route path="/dashboard/profile" element={<DashboardProfile />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/seller" element={<SellerDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

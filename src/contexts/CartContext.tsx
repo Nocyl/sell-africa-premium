@@ -118,7 +118,8 @@ export const CartProvider = ({ children }: CartProviderProps) => {
           if (item.quantity > 1) {
             return { ...item, quantity: item.quantity - 1 };
           } else {
-            // If quantity would be 0, remove the item completely
+            // Si la quantité serait 0, on supprime l'article complètement
+            // Mais on ne montre le toast qu'une seule fois
             toast.success(`${item.name} retiré du panier`);
             return null;
           }
@@ -130,10 +131,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     });
   };
 
-  // Clear entire cart
+  // Clear entire cart - avec un seul toast
   const clearCart = () => {
+    // Ne montrer le toast que si le panier n'est pas déjà vide
+    if (cartItems.length > 0) {
+      toast.success("Panier vidé avec succès");
+    }
     setCartItems([]);
-    toast.success("Panier vidé avec succès");
   };
 
   // Close cart popup

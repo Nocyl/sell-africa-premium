@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -62,12 +63,12 @@ export default function FeaturedProducts() {
       <h2 className="text-3xl font-bold text-center mb-8">Nos produits populaires</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <Card key={product.id} className="product-card">
+          <Card key={product.id} className="product-card overflow-hidden transition-all duration-300 hover:shadow-lg">
             <CardContent className="p-4">
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-48 object-cover rounded-md mb-4"
+                className="w-full h-48 object-cover rounded-md mb-4 transition-transform duration-300 hover:scale-105"
               />
               <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
               <p className="text-gray-600">{product.category}</p>
@@ -78,7 +79,7 @@ export default function FeaturedProducts() {
                 })}
               </p>
             </CardContent>
-            <CardFooter className="flex justify-between items-center p-4">
+            <CardFooter className="flex justify-between items-center p-4 bg-gray-50">
               <Button onClick={() => navigate(`/product/${product.id}`)}>
                 Voir plus
               </Button>
