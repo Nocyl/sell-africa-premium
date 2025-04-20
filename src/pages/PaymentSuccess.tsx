@@ -1,3 +1,4 @@
+
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
@@ -17,15 +18,12 @@ const PaymentSuccess = () => {
   useEffect(() => {
     clearCart();
     
-    const launchConfetti = () => {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    };
-    
-    launchConfetti();
+    // Launch confetti only once when the component mounts
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
   }, [clearCart]);
 
   const handleContinueShopping = () => {
