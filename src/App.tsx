@@ -21,10 +21,10 @@ import CourseDetail from "./pages/CourseDetail";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import UserDashboard from "./pages/dashboard/UserDashboard";
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import DashboardOrders from "./pages/dashboard/DashboardOrders";
 import DashboardCourses from "./pages/dashboard/DashboardCourses";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
 
 const queryClient = new QueryClient();
 
