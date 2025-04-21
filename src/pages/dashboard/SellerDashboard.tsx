@@ -6,7 +6,7 @@ import SellerSalesDistribution from "./seller/SellerSalesDistribution";
 import SellerRecentMessages from "./seller/SellerRecentMessages";
 import SellerRecentOrders from "./seller/SellerRecentOrders";
 import SellerProductsAndCourses from "./seller/SellerProductsAndCourses";
-
+import QuickNavMenu from "@/components/dashboard/QuickNavMenu";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
