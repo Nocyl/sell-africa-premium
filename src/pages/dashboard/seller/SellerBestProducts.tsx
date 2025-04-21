@@ -17,8 +17,9 @@ const COLORS = ['#8884d8', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 export default function SellerBestProducts() {
   const navigate = useNavigate();
+  
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Produits les plus vendus</CardTitle>
         <Button variant="outline" size="sm" onClick={() => navigate("/seller/products")}>
@@ -27,18 +28,39 @@ export default function SellerBestProducts() {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={barData}>
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
-                formatter={(value) => [`${value} FCFA`, "Prix"]} 
-                wrapperStyle={{ fontSize: '12px' }}
+            <BarChart 
+              data={barData}
+              margin={{ top: 5, right: 10, left: 10, bottom: 50 }}
+            >
+              <XAxis 
+                dataKey="name" 
+                tick={{ fontSize: 12 }} 
+                angle={-45}
+                textAnchor="end"
+                height={60}
               />
-              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+              <YAxis 
+                tick={{ fontSize: 12 }} 
+                width={60}
+                tickFormatter={(value) => `${value / 1000}k`}
+              />
+              <Tooltip 
+                formatter={(value) => [`${Number(value).toLocaleString()} FCFA`, "Prix"]} 
+                wrapperStyle={{ fontSize: '12px' }}
+                cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+              />
+              <Bar 
+                dataKey="value" 
+                radius={[4, 4, 0, 0]}
+                maxBarSize={50}
+              >
                 {barData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={COLORS[index % COLORS.length]} 
+                  />
                 ))}
               </Bar>
             </BarChart>
