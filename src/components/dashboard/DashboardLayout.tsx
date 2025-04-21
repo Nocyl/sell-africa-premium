@@ -1,3 +1,4 @@
+
 import { ReactNode, useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { AdminSidebarMenu } from "./AdminSidebarItems";
 import { SellerSidebarMenu } from "./SellerSidebarItems";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -114,6 +117,62 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
   const unreadMessagesCount = messages.filter(m => !m.read).length;
+
+  const renderQuickAccessMenu = () => {
+    const links = [];
+    
+    if (isAdminDashboard) {
+      links.push(
+        { label: "Tableau de bord", icon: LayoutDashboard, href: "/admin" },
+        { label: "Utilisateurs", icon: User, href: "/admin/users" },
+        { label: "Produits", icon: ShoppingBag, href: "/admin/products" },
+        { label: "Paramètres", icon: Settings, href: "/admin/settings" }
+      );
+    } else if (isSellerDashboard) {
+      links.push(
+        { label: "Tableau de bord", icon: LayoutDashboard, href: "/seller" },
+        { label: "Produits", icon: ShoppingBag, href: "/seller/products" },
+        { label: "Cours", icon: GraduationCap, href: "/seller/courses" },
+        { label: "Ventes", icon: Bell, href: "/seller/sales" },
+        { label: "Paramètres", icon: Settings, href: "/seller/settings" }
+      );
+    } else {
+      links.push(
+        { label: "Tableau de bord", icon: LayoutDashboard, href: "/dashboard" },
+        { label: "Mes commandes", icon: ShoppingBag, href: "/dashboard/orders" },
+        { label: "Mes cours", icon: GraduationCap, href: "/dashboard/courses" },
+        { label: "Mon profil", icon: User, href: "/dashboard/profile" }
+      );
+    }
+    
+    return (
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button variant="outline" size="icon" className="ml-2">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Accès Rapide</DrawerTitle>
+          </DrawerHeader>
+          <nav className="flex flex-col gap-2 p-4">
+            {links.map((link) => (
+              <Button
+                key={link.label}
+                variant="ghost"
+                className="w-full justify-start gap-3 text-base font-normal"
+                onClick={() => navigate(link.href)}
+              >
+                <link.icon className="h-5 w-5" />
+                {link.label}
+              </Button>
+            ))}
+          </nav>
+        </DrawerContent>
+      </Drawer>
+    );
+  };
 
   const renderDashboardMenu = () => {
     if (isAdminDashboard) {
@@ -192,35 +251,37 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Button>
           </SidebarHeader>
           <SidebarContent className={cn(
-            "md:flex flex-col",
+            "md:flex flex-col h-[calc(100vh-60px)]",
             mobileOpen ? "flex" : "hidden"
           )}>
-            <div className="px-4 pt-4 pb-2">
-              <div className="flex items-center gap-3 p-2 mb-6">
-                <Avatar>
-                  <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Thomas" />
-                  <AvatarFallback>TD</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-medium">Thomas Dubois</h3>
-                  <p className="text-xs text-muted-foreground">thomas.dubois@example.com</p>
+            <ScrollArea className="flex-1">
+              <div className="px-4 pt-4 pb-2">
+                <div className="flex items-center gap-3 p-2 mb-6">
+                  <Avatar>
+                    <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Thomas" />
+                    <AvatarFallback>TD</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium">Thomas Dubois</h3>
+                    <p className="text-xs text-muted-foreground">thomas.dubois@example.com</p>
+                  </div>
                 </div>
+                
+                <form onSubmit={handleSearch} className="mb-6">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Rechercher..."
+                      className="pl-8"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                </form>
+                
+                {renderDashboardMenu()}
               </div>
-              
-              <form onSubmit={handleSearch} className="mb-6">
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Rechercher..."
-                    className="pl-8"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-              </form>
-              
-              {renderDashboardMenu()}
-            </div>
+            </ScrollArea>
           </SidebarContent>
           <SidebarFooter className={cn(
             "border-t p-4 md:flex flex-col gap-2",
@@ -279,6 +340,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             
             <div className="flex items-center gap-2 ml-auto">
+              {renderQuickAccessMenu()}
               <TooltipProvider>
                 <DropdownMenu>
                   <Tooltip>
@@ -312,15 +374,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                     <DropdownMenuSeparator />
                     {notifications.length > 0 ? (
-                      notifications.map(notification => (
-                        <DropdownMenuItem key={notification.id} className={cn(
-                          "flex flex-col items-start p-3 cursor-default",
-                          !notification.read && "bg-muted/50"
-                        )}>
-                          <div className="text-sm font-medium">{notification.content}</div>
-                          <div className="text-xs text-muted-foreground mt-1">{notification.time}</div>
-                        </DropdownMenuItem>
-                      ))
+                      <ScrollArea className="h-[300px]">
+                        {notifications.map(notification => (
+                          <DropdownMenuItem key={notification.id} className={cn(
+                            "flex flex-col items-start p-3 cursor-default",
+                            !notification.read && "bg-muted/50"
+                          )}>
+                            <div className="text-sm font-medium">{notification.content}</div>
+                            <div className="text-xs text-muted-foreground mt-1">{notification.time}</div>
+                          </DropdownMenuItem>
+                        ))}
+                      </ScrollArea>
                     ) : (
                       <div className="p-3 text-center text-sm text-muted-foreground">
                         Aucune notification
@@ -351,16 +415,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <DropdownMenuLabel>Messages</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {messages.length > 0 ? (
-                      messages.map(message => (
-                        <DropdownMenuItem key={message.id} className={cn(
-                          "flex flex-col items-start p-3 cursor-default",
-                          !message.read && "bg-muted/50"
-                        )}>
-                          <div className="text-sm font-medium">{message.from}</div>
-                          <div className="text-sm">{message.content}</div>
-                          <div className="text-xs text-muted-foreground mt-1">{message.time}</div>
-                        </DropdownMenuItem>
-                      ))
+                      <ScrollArea className="h-[300px]">
+                        {messages.map(message => (
+                          <DropdownMenuItem key={message.id} className={cn(
+                            "flex flex-col items-start p-3 cursor-default",
+                            !message.read && "bg-muted/50"
+                          )}>
+                            <div className="text-sm font-medium">{message.from}</div>
+                            <div className="text-sm">{message.content}</div>
+                            <div className="text-xs text-muted-foreground mt-1">{message.time}</div>
+                          </DropdownMenuItem>
+                        ))}
+                      </ScrollArea>
                     ) : (
                       <div className="p-3 text-center text-sm text-muted-foreground">
                         Aucun message
@@ -421,7 +487,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {getDashboardDescription()}
               </p>
             </div>
-            {children}
+            <ScrollArea className="h-[calc(100vh-180px)]">
+              {children}
+            </ScrollArea>
           </main>
         </div>
       </div>
