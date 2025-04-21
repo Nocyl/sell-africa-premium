@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import SellerStatsCards from "./seller/SellerStatsCards";
 import SellerSalesOverview from "./seller/SellerSalesOverview";
@@ -11,6 +10,7 @@ import QuickNavMenu from "@/components/dashboard/QuickNavMenu";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import SellerDashboardMenu from "./seller/components/SellerDashboardMenu";
 
 export default function SellerDashboard() {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export default function SellerDashboard() {
             <QuickNavMenu title="Navigation rapide" items={dashboardSections} />
             <QuickNavMenu title="Actions rapides" items={quickLinks} />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             <Button 
               size="sm" 
               className="flex items-center gap-1"
@@ -58,6 +58,7 @@ export default function SellerDashboard() {
               <Plus className="h-4 w-4" />
               Ajouter un cours
             </Button>
+            <SellerDashboardMenu />
           </div>
         </div>
         
