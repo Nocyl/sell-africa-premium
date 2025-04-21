@@ -61,7 +61,18 @@ export default function SellerDashboard() {
           </div>
         </div>
         
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div id="messages">
+            <SellerRecentMessages />
+          </div>
+          <div id="orders">
+            <SellerRecentOrders />
+          </div>
+        </div>
         
+        <div id="catalog" className="grid grid-cols-1 gap-8">
+          <SellerProductsAndCourses />
+        </div>
       </div>
     </DashboardLayout>
   );
