@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Card,
@@ -10,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Check } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 export default function SellerSettings() {
   const [storeName, setStoreName] = useState("WorldSell");
@@ -32,7 +33,7 @@ export default function SellerSettings() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    alert("Paramètres de la boutique mis à jour !");
+    toast.success("Paramètres de la boutique mis à jour avec succès!");
   };
 
   return (
@@ -117,4 +118,3 @@ export default function SellerSettings() {
     </div>
   );
 }
-

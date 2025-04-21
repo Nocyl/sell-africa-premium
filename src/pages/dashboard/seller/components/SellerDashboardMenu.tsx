@@ -8,11 +8,9 @@ import {
   ShoppingCart,
   PieChart,
   MessageSquare,
-  Users,
-  Settings,
-  HelpCircle,
   Plus,
-  Tag
+  Tag,
+  Settings
 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
@@ -93,7 +91,7 @@ export default function SellerDashboardMenu() {
   const handleClick = (link: typeof links[0]) => {
     setOpen(false);
     if (link.href.startsWith("/seller#") && link.scrollTo) {
-      // On la page seller, scrollInPage
+      // Sur la page seller, scrollInPage
       const dom = document.getElementById(link.scrollTo);
       if (dom) {
         dom.scrollIntoView({ behavior: "smooth" });
@@ -112,9 +110,7 @@ export default function SellerDashboardMenu() {
         variant="outline" 
         size="icon"
         onClick={() => setOpen(true)}
-        className={clsx(
-          "md:hidden", // bouton menu affiché sur mobile seulement
-        )}
+        className="md:flex"
         aria-label="Ouvrir le menu du tableau de bord"
       >
         <Menu className="h-6 w-6" />
