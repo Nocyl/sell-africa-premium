@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -91,12 +90,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { id: 2, from: "Client", content: "Question sur le produit", time: "Il y a 3 heures", read: true },
   ]);
   
-  // Détecter quel dashboard est affiché
   const isAdminDashboard = location.pathname.startsWith('/admin');
   const isSellerDashboard = location.pathname.startsWith('/seller');
   const isUserDashboard = !isAdminDashboard && !isSellerDashboard;
   
-  // Fermer le menu mobile lors du changement de route
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
@@ -105,7 +102,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     e.preventDefault();
     if (searchQuery.trim()) {
       toast.info(`Recherche en cours: ${searchQuery}`);
-      // Ici on pourrait implémenter une vraie recherche
       setSearchQuery("");
     }
   };
@@ -254,7 +250,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             "md:flex flex-col h-[calc(100vh-60px)]",
             mobileOpen ? "flex" : "hidden"
           )}>
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 h-full" orientation="vertical" hideScrollbar={false}>
               <div className="px-4 pt-4 pb-2">
                 <div className="flex items-center gap-3 p-2 mb-6">
                   <Avatar>
@@ -341,6 +337,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             
             <div className="flex items-center gap-2 ml-auto">
               {renderQuickAccessMenu()}
+              
               <TooltipProvider>
                 <DropdownMenu>
                   <Tooltip>
@@ -487,9 +484,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {getDashboardDescription()}
               </p>
             </div>
-            <ScrollArea className="h-[calc(100vh-180px)]">
-              {children}
-            </ScrollArea>
+            
+            {children}
           </main>
         </div>
       </div>
