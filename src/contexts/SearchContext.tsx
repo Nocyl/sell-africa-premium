@@ -55,7 +55,7 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
       // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Mock search results
+      // Mock search results with correct type
       const mockResults: SearchResult[] = [
         {
           id: "p1",

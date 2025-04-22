@@ -33,6 +33,7 @@ import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import SellerProducts from "./pages/dashboard/seller/SellerProducts";
 import SellerCourses from "./pages/dashboard/seller/SellerCourses";
 import SellerAddProduct from "./pages/dashboard/seller/SellerAddProduct";
+import SellerAddCourse from "./pages/dashboard/seller/SellerAddCourse";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/seller/products" element={<SellerProducts />} />
               <Route path="/seller/products/new" element={<SellerAddProduct />} />
               <Route path="/seller/courses" element={<SellerCourses />} />
+              <Route path="/seller/courses/new" element={<SellerAddCourse />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

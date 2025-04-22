@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -18,6 +17,7 @@ import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import EmptyState from "@/components/dashboard/seller/EmptyState";
+import { Badge } from "@/components/ui/badge";
 
 const productSchema = z.object({
   name: z.string().min(3, "Le nom doit contenir au moins 3 caractères"),
@@ -59,7 +59,6 @@ export default function SellerAddProduct() {
   });
   
   const handleAddImage = () => {
-    // In a real app this would upload an image
     const mockImages = [
       "https://api.dicebear.com/7.x/shapes/svg?seed=product1",
       "https://api.dicebear.com/7.x/shapes/svg?seed=product2",
@@ -80,7 +79,6 @@ export default function SellerAddProduct() {
   const onSubmit = (data: ProductFormValues) => {
     setLoading(true);
     
-    // Simulate API call
     setTimeout(() => {
       console.log("Form data:", data);
       console.log("Images:", images);
