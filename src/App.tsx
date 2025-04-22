@@ -1,9 +1,11 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext";
+import { SearchProvider } from "./contexts/SearchContext";
 
 import Index from "./pages/Index";
 import Products from "./pages/Products";
@@ -30,6 +32,7 @@ import SellerSettings from "./pages/dashboard/SellerSettings";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import SellerProducts from "./pages/dashboard/seller/SellerProducts";
 import SellerCourses from "./pages/dashboard/seller/SellerCourses";
+import SellerAddProduct from "./pages/dashboard/seller/SellerAddProduct";
 
 const queryClient = new QueryClient();
 
@@ -37,37 +40,40 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <CartProvider>
-        <Toaster />
-        <Sonner position="top-right" closeButton richColors />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/digital" element={<DigitalProducts />} />
-            <Route path="/physical" element={<PhysicalProducts />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/course/:id" element={<CourseDetail />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/sell" element={<Sell />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/dashboard/orders" element={<DashboardOrders />} />
-            <Route path="/dashboard/courses" element={<DashboardCourses />} />
-            <Route path="/dashboard/profile" element={<DashboardProfile />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/seller" element={<SellerDashboard />} />
-            <Route path="/seller/settings" element={<SellerSettings />} />
-            <Route path="/dashboard/settings" element={<DashboardSettings />} />
-            <Route path="/seller/products" element={<SellerProducts />} />
-            <Route path="/seller/courses" element={<SellerCourses />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <SearchProvider>
+          <Toaster />
+          <Sonner position="top-right" closeButton richColors />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/digital" element={<DigitalProducts />} />
+              <Route path="/physical" element={<PhysicalProducts />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/course/:id" element={<CourseDetail />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/sell" element={<Sell />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/dashboard" element={<UserDashboard />} />
+              <Route path="/dashboard/orders" element={<DashboardOrders />} />
+              <Route path="/dashboard/courses" element={<DashboardCourses />} />
+              <Route path="/dashboard/profile" element={<DashboardProfile />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/seller" element={<SellerDashboard />} />
+              <Route path="/seller/settings" element={<SellerSettings />} />
+              <Route path="/dashboard/settings" element={<DashboardSettings />} />
+              <Route path="/seller/products" element={<SellerProducts />} />
+              <Route path="/seller/products/new" element={<SellerAddProduct />} />
+              <Route path="/seller/courses" element={<SellerCourses />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </SearchProvider>
       </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>

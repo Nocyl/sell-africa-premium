@@ -1,3 +1,4 @@
+
 import { ReactNode, useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,6 @@ import {
   X,
   Bell,
   MessageSquare,
-  Search,
   ChevronDown
 } from "lucide-react";
 import {
@@ -34,7 +34,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -42,6 +41,8 @@ import { AdminSidebarMenu } from "./AdminSidebarItems";
 import { SellerSidebarMenu } from "./SellerSidebarItems";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import SearchButton from "./search/SearchButton";
+import SearchResults from "./search/SearchResults";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -79,7 +80,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [notifications, setNotifications] = useState([
     { id: 1, content: "Nouvelle commande reçue", time: "Il y a 15 min", read: false },
     { id: 2, content: "Mise à jour de la plateforme", time: "Il y a 1 heure", read: false },
@@ -97,14 +97,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      toast.info(`Recherche en cours: ${searchQuery}`);
-      setSearchQuery("");
-    }
-  };
 
   const markAllNotificationsAsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -263,17 +255,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </div>
                 </div>
                 
-                <form onSubmit={handleSearch} className="mb-6">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Rechercher..."
-                      className="pl-8"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                </form>
+                <div className="mb-6">
+                  <SearchButton />
+                </div>
                 
                 {renderDashboardMenu()}
               </div>
@@ -325,9 +309,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         
         <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
           <header className="bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+            {/* Removed the menu icon as requested */}
+            <div className="w-full max-w-md mx-auto hidden md:block">
+              <SearchButton />
+            </div>
+            
             <div className="flex items-center gap-2 ml-auto">
-              {renderQuickAccessMenu()}
-              
               <TooltipProvider>
                 <DropdownMenu>
                   <Tooltip>
@@ -479,6 +466,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </main>
         </div>
       </div>
+      
+      <SearchResults />
     </SidebarProvider>
   );
 }
