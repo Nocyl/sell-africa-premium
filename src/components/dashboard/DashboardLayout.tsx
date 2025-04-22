@@ -325,16 +325,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         
         <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
           <header className="bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-            <div className="flex items-center md:hidden">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setMobileOpen(!mobileOpen)}
-              >
-                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </div>
-            
             <div className="flex items-center gap-2 ml-auto">
               {renderQuickAccessMenu()}
               
