@@ -9,6 +9,7 @@ interface EmptyStateProps {
   icon: ReactNode;
   actionLabel: string;
   actionLink: string;
+  actionOnClick?: () => void;
 }
 
 export default function EmptyState({
@@ -16,9 +17,18 @@ export default function EmptyState({
   description,
   icon,
   actionLabel,
-  actionLink
+  actionLink,
+  actionOnClick
 }: EmptyStateProps) {
   const navigate = useNavigate();
+  
+  const handleAction = () => {
+    if (actionOnClick) {
+      actionOnClick();
+    } else {
+      navigate(actionLink);
+    }
+  };
   
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 border border-dashed rounded-lg bg-muted/30 text-center h-60">
@@ -29,7 +39,7 @@ export default function EmptyState({
       <p className="text-muted-foreground mb-6 max-w-sm">
         {description}
       </p>
-      <Button onClick={() => navigate(actionLink)}>
+      <Button onClick={handleAction}>
         {actionLabel}
       </Button>
     </div>

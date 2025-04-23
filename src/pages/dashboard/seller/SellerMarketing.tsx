@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   PlusCircle, 
   Tag, 
+  Search,
   PercentSquare, 
   Globe, 
   Calendar, 
@@ -26,7 +26,8 @@ import {
   AlertTriangle,
   Link as LinkIcon,
   Clock,
-  ArrowRight
+  ArrowRight,
+  LayoutGrid,
 } from "lucide-react";
 import EmptyState from "@/components/dashboard/seller/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -160,13 +161,13 @@ export default function SellerMarketing() {
       code: newPromotion.code,
       startDate: newPromotion.startDate || new Date().toISOString().split('T')[0],
       endDate: newPromotion.endDate || new Date().toISOString().split('T')[0],
-      status: newPromotion.status as "active" | "scheduled" | "expired" | "draft" || "draft",
+      status: newPromotion.status as "active" | "scheduled" | "expired" | "draft",
       description: newPromotion.description,
       products: newPromotion.products || ["all"],
       minPurchase: newPromotion.minPurchase,
       usageLimit: newPromotion.usageLimit,
       usageCount: 0,
-      customerType: newPromotion.customerType as "all" | "new" | "returning" || "all",
+      customerType: newPromotion.customerType as "all" | "new" | "returning",
       image: newPromotion.image || `https://api.dicebear.com/7.x/shapes/svg?seed=promo${Date.now()}`
     };
     
@@ -297,7 +298,7 @@ export default function SellerMarketing() {
                             <Label htmlFor="type">Type de promotion</Label>
                             <Select 
                               value={newPromotion.type} 
-                              onValueChange={(value) => setNewPromotion({...newPromotion, type: value})}
+                              onValueChange={(value: "percentage" | "fixed" | "buy_get" | "free_shipping") => setNewPromotion({...newPromotion, type: value})}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Sélectionner un type" />
@@ -414,7 +415,7 @@ export default function SellerMarketing() {
                             <Label htmlFor="customerType">Type de client</Label>
                             <Select 
                               value={newPromotion.customerType} 
-                              onValueChange={(value) => setNewPromotion({...newPromotion, customerType: value as any})}
+                              onValueChange={(value: "all" | "new" | "returning") => setNewPromotion({...newPromotion, customerType: value})}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Sélectionner" />
@@ -644,7 +645,7 @@ export default function SellerMarketing() {
                         <Button className="w-full" onClick={() => {
                           toast.success("Promotion activée");
                           const updatedPromotions = promotions.map(p => 
-                            p.id === selectedPromotion.id ? { ...p, status: "active" } : p
+                            p.id === selectedPromotion.id ? { ...p, status: "active" as const } : p
                           );
                           setPromotions(updatedPromotions);
                           setSelectedPromotion({ ...selectedPromotion, status: "active" });
@@ -655,7 +656,7 @@ export default function SellerMarketing() {
                         <Button variant="outline" className="w-full" onClick={() => {
                           toast.info("Promotion désactivée");
                           const updatedPromotions = promotions.map(p => 
-                            p.id === selectedPromotion.id ? { ...p, status: "draft" } : p
+                            p.id === selectedPromotion.id ? { ...p, status: "draft" as const } : p
                           );
                           setPromotions(updatedPromotions);
                           setSelectedPromotion({ ...selectedPromotion, status: "draft" });
@@ -819,233 +820,3 @@ export default function SellerMarketing() {
                                 <td className="p-3">
                                   {getStatusBadge(promotion.status)}
                                 </td>
-                                <td className="p-3 text-right">
-                                  <Button variant="ghost" size="icon" onClick={(e) => {
-                                    e.stopPropagation();
-                                    deletePromotion(promotion.id);
-                                  }}>
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="coupons">
-            <Card>
-              <CardHeader>
-                <CardTitle>Codes promo</CardTitle>
-                <CardDescription>
-                  Gérez vos codes promo pour augmenter vos ventes
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <EmptyState
-                  title="Aucun code promo"
-                  description="Créez un nouveau code promo pour offrir des réductions à vos clients."
-                  icon={<Gift className="h-10 w-10" />}
-                  actionLabel="Créer un code promo"
-                  actionLink="#"
-                  actionOnClick={() => {
-                    setActiveTab("promotions");
-                    setShowNewPromotion(true);
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="whatsapp">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle>Intégration WhatsApp</CardTitle>
-                    <CardDescription>
-                      Connectez-vous avec vos clients via WhatsApp
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
-                    Pro
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Activer l'intégration WhatsApp</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Permettez à vos clients de vous contacter directement via WhatsApp
-                    </p>
-                  </div>
-                  <Switch
-                    checked={whatsappSettings.enabled}
-                    onCheckedChange={(checked) => setWhatsappSettings({...whatsappSettings, enabled: checked})}
-                  />
-                </div>
-                
-                {whatsappSettings.enabled && (
-                  <>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="phoneNumber">Numéro de téléphone WhatsApp</Label>
-                        <Input 
-                          id="phoneNumber" 
-                          placeholder="ex: +33612345678" 
-                          value={whatsappSettings.phoneNumber}
-                          onChange={(e) => setWhatsappSettings({...whatsappSettings, phoneNumber: e.target.value})}
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Format international avec l'indicatif du pays (ex: +33 pour la France).
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="welcomeMessage">Message d'accueil</Label>
-                        <Textarea 
-                          id="welcomeMessage" 
-                          placeholder="Message automatique envoyé aux clients..."
-                          rows={3}
-                          value={whatsappSettings.welcomeMessage}
-                          onChange={(e) => setWhatsappSettings({...whatsappSettings, welcomeMessage: e.target.value})}
-                        />
-                      </div>
-                      
-                      <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <Label className="text-base">Réponses automatiques</Label>
-                          <p className="text-sm text-muted-foreground">
-                            Activer les réponses automatiques pour les questions fréquentes
-                          </p>
-                        </div>
-                        <Switch
-                          checked={whatsappSettings.autoResponses}
-                          onCheckedChange={(checked) => setWhatsappSettings({...whatsappSettings, autoResponses: checked})}
-                        />
-                      </div>
-                      
-                      <Card className="bg-muted/50">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm">Placement du bouton WhatsApp</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex gap-4">
-                            <Button variant="outline" className="flex-1 h-auto py-2 px-3">
-                              <div className="flex flex-col items-center gap-1">
-                                <div className="rounded-md border border-dashed p-3 w-full">
-                                  <div className="w-8 h-8 rounded-full bg-green-500 mx-auto relative">
-                                    <MessageSquare className="h-4 w-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                                  </div>
-                                </div>
-                                <span className="text-xs">Coin inférieur droit</span>
-                              </div>
-                            </Button>
-                            <Button variant="outline" className="flex-1 h-auto py-2 px-3">
-                              <div className="flex flex-col items-center gap-1">
-                                <div className="rounded-md border border-dashed p-3 w-full">
-                                  <div className="w-full h-6 rounded-md bg-green-500 mx-auto relative flex items-center justify-center">
-                                    <MessageSquare className="h-3 w-3 text-white mr-1" />
-                                    <span className="text-[10px] text-white">WhatsApp</span>
-                                  </div>
-                                </div>
-                                <span className="text-xs">Barre supérieure</span>
-                              </div>
-                            </Button>
-                            <Button variant="outline" className="flex-1 h-auto py-2 px-3">
-                              <div className="flex flex-col items-center gap-1">
-                                <div className="rounded-md border border-dashed p-3 w-full relative">
-                                  <div className="w-full h-4 rounded-md bg-gray-200 mb-1"></div>
-                                  <div className="w-full h-4 rounded-md bg-gray-200 mb-1"></div>
-                                  <div className="absolute right-2 top-2">
-                                    <div className="w-4 h-4 rounded-full bg-green-500 relative">
-                                      <MessageSquare className="h-2 w-2 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                                    </div>
-                                  </div>
-                                </div>
-                                <span className="text-xs">Produit et page</span>
-                              </div>
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                    
-                    <div className="pt-4 border-t">
-                      <Button onClick={saveWhatsAppSettings}>
-                        Enregistrer les paramètres
-                      </Button>
-                    </div>
-                  </>
-                )}
-                
-                {!whatsappSettings.enabled && (
-                  <Card className="border-dashed bg-muted/30">
-                    <CardContent className="pt-6">
-                      <div className="flex flex-col items-center justify-center text-center space-y-4">
-                        <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                          <MessageSquare className="h-6 w-6 text-green-600" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-medium">Améliorez votre service client avec WhatsApp</h3>
-                          <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1">
-                            L'intégration WhatsApp vous permet de communiquer directement avec vos clients,
-                            d'augmenter vos taux de conversion et d'améliorer la satisfaction client.
-                          </p>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                          <div className="flex flex-col items-center p-3 border rounded-md">
-                            <Users className="h-8 w-8 text-muted-foreground mb-2" />
-                            <p className="text-sm font-medium">Support client</p>
-                          </div>
-                          <div className="flex flex-col items-center p-3 border rounded-md">
-                            <Megaphone className="h-8 w-8 text-muted-foreground mb-2" />
-                            <p className="text-sm font-medium">Marketing</p>
-                          </div>
-                          <div className="flex flex-col items-center p-3 border rounded-md">
-                            <Mail className="h-8 w-8 text-muted-foreground mb-2" />
-                            <p className="text-sm font-medium">Notifications</p>
-                          </div>
-                          <div className="flex flex-col items-center p-3 border rounded-md">
-                            <BarChart className="h-8 w-8 text-muted-foreground mb-2" />
-                            <p className="text-sm font-medium">Statistiques</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="stats">
-            <Card>
-              <CardHeader>
-                <CardTitle>Statistiques marketing</CardTitle>
-                <CardDescription>
-                  Analysez les performances de vos campagnes marketing
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center h-64">
-                  <AlertTriangle className="h-10 w-10 text-yellow-500 mr-2" />
-                  <h3 className="text-lg font-medium">
-                    Statistiques en cours de développement
-                  </h3>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </DashboardLayout>
-  );
-}

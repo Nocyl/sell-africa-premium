@@ -295,10 +295,14 @@ export default function SellerOrders() {
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
-                      <PaginationPrevious 
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                      />
+                      >
+                        <PaginationPrevious />
+                      </Button>
                     </PaginationItem>
                     
                     {Array.from({ length: pageCount }, (_, i) => i + 1)
@@ -317,7 +321,11 @@ export default function SellerOrders() {
                               </PaginationItem>
                               <PaginationItem>
                                 <PaginationLink
-                                  onClick={() => setCurrentPage(page)}
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentPage(page);
+                                  }}
                                   isActive={page === currentPage}
                                 >
                                   {page}
@@ -330,7 +338,11 @@ export default function SellerOrders() {
                         return (
                           <PaginationItem key={page}>
                             <PaginationLink
-                              onClick={() => setCurrentPage(page)}
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(page);
+                              }}
                               isActive={page === currentPage}
                             >
                               {page}
@@ -340,10 +352,14 @@ export default function SellerOrders() {
                       })}
                     
                     <PaginationItem>
-                      <PaginationNext 
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, pageCount))}
                         disabled={currentPage === pageCount}
-                      />
+                      >
+                        <PaginationNext />
+                      </Button>
                     </PaginationItem>
                   </PaginationContent>
                 </Pagination>
