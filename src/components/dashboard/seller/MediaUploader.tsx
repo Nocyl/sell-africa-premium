@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Upload, X, Image as ImageIcon, File, Check } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,7 +28,11 @@ export default function MediaUploader({
   const [progress, setProgress] = useState<number>(0);
   const [dragActive, setDragActive] = useState<boolean>(false);
 
-  // Mock file upload function
+  // Uploaded files count display
+  const fileCount = uploadedFiles.length;
+  const remainingFiles = maxFiles - fileCount;
+
+  // File upload function with simulated server upload
   const uploadFiles = async (files: FileList) => {
     if (uploadedFiles.length + files.length > maxFiles) {
       toast.error(`Vous ne pouvez télécharger que ${maxFiles} fichiers au maximum.`);
@@ -38,36 +42,47 @@ export default function MediaUploader({
     setUploading(true);
     const newFiles: string[] = [];
 
-    // Simulate upload process
+    // Process each file
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const progress = ((i + 1) / files.length) * 100;
-      setProgress(progress);
+      
+      // Update progress based on current file
+      const currentProgress = ((i + 1) / files.length) * 100;
+      setProgress(currentProgress);
 
-      // Check file type
-      const fileType = file.type.split('/')[0];
-      let seed = '';
-
-      if (fileType === 'image') {
-        seed = `product${Math.floor(Math.random() * 1000)}`;
-      } else {
-        seed = `file${Math.floor(Math.random() * 1000)}`;
+      // Read file to create URL (in production, this would be an API upload)
+      try {
+        // Create a file reader to get file contents
+        const reader = new FileReader();
+        
+        // Create a promise to handle the async file reading
+        const fileDataUrl = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error("Failed to read file"));
+          reader.readAsDataURL(file);
+        });
+        
+        // Simulate server delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // In a real app, we would upload to a server here
+        // For now, we'll just use the data URL
+        newFiles.push(fileDataUrl);
+        
+      } catch (error) {
+        console.error("Error processing file:", error);
+        toast.error(`Erreur lors du traitement du fichier ${file.name}`);
       }
-
-      // Simulate delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Use DiceBear for mock images
-      const mockUrl = `https://api.dicebear.com/7.x/shapes/svg?seed=${seed}`;
-      newFiles.push(mockUrl);
     }
 
-    setUploading(false);
-    setProgress(0);
-    
+    // Update state with new files
     const updatedFiles = [...uploadedFiles, ...newFiles];
     setUploadedFiles(updatedFiles);
     onUploadComplete(updatedFiles);
+    
+    // Reset upload state
+    setUploading(false);
+    setProgress(0);
     
     toast.success(`${files.length} fichier${files.length > 1 ? 's' : ''} téléchargé${files.length > 1 ? 's' : ''} avec succès`);
   };
@@ -151,7 +166,7 @@ export default function MediaUploader({
         )}
         
         <p className="text-xs text-muted-foreground mt-4">
-          Formats acceptés: {acceptedTypes.replace('*', 'tous')} • Max {maxFiles} fichiers
+          Formats acceptés: {acceptedTypes.replace('*', 'tous')} • Max {maxFiles} fichiers • {remainingFiles} restant{remainingFiles > 1 ? 's' : ''}
         </p>
       </div>
 

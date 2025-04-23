@@ -37,6 +37,9 @@ import SellerAddCourse from "./pages/dashboard/seller/SellerAddCourse";
 import SellerOrders from "./pages/dashboard/seller/SellerOrders";
 import SellerMarketing from "./pages/dashboard/seller/SellerMarketing";
 import SellerSales from "./pages/dashboard/seller/SellerSales";
+import SellerPromotions from "./pages/dashboard/seller/SellerPromotions";
+import SellerCoupons from "./pages/dashboard/seller/SellerCoupons";
+import WhatsAppIntegration from "./pages/dashboard/seller/WhatsAppIntegration";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +81,10 @@ const App = () => (
               <Route path="/seller/products/new" element={<SellerAddProduct />} />
               <Route path="/seller/courses" element={<SellerCourses />} />
               <Route path="/seller/courses/new" element={<SellerAddCourse />} />
+              {/* New routes for marketing features */}
+              <Route path="/seller/promotions" element={<SellerPromotions />} />
+              <Route path="/seller/coupons" element={<SellerCoupons />} />
+              <Route path="/seller/whatsapp" element={<WhatsAppIntegration />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
