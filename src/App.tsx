@@ -34,6 +34,9 @@ import SellerProducts from "./pages/dashboard/seller/SellerProducts";
 import SellerCourses from "./pages/dashboard/seller/SellerCourses";
 import SellerAddProduct from "./pages/dashboard/seller/SellerAddProduct";
 import SellerAddCourse from "./pages/dashboard/seller/SellerAddCourse";
+import SellerOrders from "./pages/dashboard/seller/SellerOrders";
+import SellerMarketing from "./pages/dashboard/seller/SellerMarketing";
+import SellerSales from "./pages/dashboard/seller/SellerSales";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +70,9 @@ const App = () => (
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/seller" element={<SellerDashboard />} />
               <Route path="/seller/settings" element={<SellerSettings />} />
+              <Route path="/seller/orders" element={<SellerOrders />} />
+              <Route path="/seller/marketing" element={<SellerMarketing />} />
+              <Route path="/seller/sales" element={<SellerSales />} />
               <Route path="/dashboard/settings" element={<DashboardSettings />} />
               <Route path="/seller/products" element={<SellerProducts />} />
               <Route path="/seller/products/new" element={<SellerAddProduct />} />
