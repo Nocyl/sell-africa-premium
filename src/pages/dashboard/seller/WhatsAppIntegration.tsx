@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -13,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   MessageSquare,
   Phone,
-  WhatsappLogo,
   ArrowRight,
   Clock,
   Copy,
@@ -26,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Whatsapp } from "lucide-react";
 
 interface WhatsAppButtonStyle {
   position: "bottom-right" | "bottom-left" | "middle-right" | "middle-left";
@@ -51,7 +50,9 @@ export default function WhatsAppIntegration() {
   const [buttonEnabled, setButtonEnabled] = useState(false);
   const [automationEnabled, setAutomationEnabled] = useState(false);
   const [proFeatureModal, setProFeatureModal] = useState(false);
-  
+  const [showAdvancedAutomation, setShowAdvancedAutomation] = useState(false);
+  const [advancedApiKey, setAdvancedApiKey] = useState("");
+
   const [buttonStyle, setButtonStyle] = useState<WhatsAppButtonStyle>({
     position: "bottom-right",
     size: "medium",
@@ -59,7 +60,7 @@ export default function WhatsAppIntegration() {
     text: "Besoin d'aide? Discutons sur WhatsApp",
     showOnPages: ["product", "course", "home"]
   });
-  
+
   const [autoMessages, setAutoMessages] = useState<WhatsAppMessage[]>([
     {
       id: "msg1",
@@ -83,36 +84,41 @@ export default function WhatsAppIntegration() {
       active: true
     }
   ]);
-  
+
   const handleWhatsAppNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setWhatsappNumber(value);
-    
-    // Simple validation - should be more robust in production
     const validFormat = /^\+[0-9]{10,15}$/.test(value);
     setIsValidNumber(validFormat);
   };
-  
+
   const saveButtonSettings = () => {
     if (!isValidNumber || !whatsappNumber) {
       toast.error("Veuillez entrer un numéro WhatsApp valide");
       return;
     }
-    
     toast.success("Paramètres du bouton WhatsApp enregistrés");
     setButtonEnabled(true);
   };
-  
+
   const saveAutomationSettings = () => {
     if (!isValidNumber || !whatsappNumber) {
       toast.error("Veuillez entrer un numéro WhatsApp valide");
       return;
     }
-    
     toast.success("Paramètres d'automatisation WhatsApp enregistrés");
     setAutomationEnabled(true);
   };
-  
+
+  const saveAdvancedApiKey = () => {
+    if (!advancedApiKey) {
+      toast.error("Veuillez renseigner votre clé API d'automatisation.");
+      return;
+    }
+    toast.success("Clé API enregistrée ! Automatisation avancée activée.");
+    setShowAdvancedAutomation(false);
+  };
+
   const copyButtonCode = () => {
     const code = `<div class="whatsapp-button ${buttonStyle.position} ${buttonStyle.size}">
   <a href="https://wa.me/${whatsappNumber.replace(/\+/g, '')}?text=${encodeURIComponent(welcomeMessage)}">
@@ -120,17 +126,22 @@ export default function WhatsAppIntegration() {
     ${buttonStyle.showText ? `<span>${buttonStyle.text}</span>` : ''}
   </a>
 </div>`;
-    
     navigator.clipboard.writeText(code);
     toast.success("Code copié dans le presse-papier");
   };
-  
+
   const toggleAutoMessage = (id: string, active: boolean) => {
     setAutoMessages(autoMessages.map(msg => 
       msg.id === id ? { ...msg, active } : msg
     ));
   };
-  
+
+  const handleMessageChange = (id: string, newContent: string) => {
+    setAutoMessages((msgs) => msgs.map(msg =>
+      msg.id === id ? { ...msg, content: newContent } : msg
+    ));
+  };
+
   const getTriggerLabel = (trigger: string) => {
     switch (trigger) {
       case "welcome": return "Message de bienvenue";
@@ -141,7 +152,7 @@ export default function WhatsAppIntegration() {
       default: return trigger;
     }
   };
-  
+
   const getPositionLabel = (position: string) => {
     switch (position) {
       case "bottom-right": return "Bas à droite";
@@ -151,7 +162,7 @@ export default function WhatsAppIntegration() {
       default: return position;
     }
   };
-  
+
   const getSizeLabel = (size: string) => {
     switch (size) {
       case "small": return "Petit";
@@ -160,7 +171,7 @@ export default function WhatsAppIntegration() {
       default: return size;
     }
   };
-  
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -175,11 +186,10 @@ export default function WhatsAppIntegration() {
             </p>
           </div>
         </div>
-        
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="button">
-              <MessageSquare className="h-4 w-4 mr-2" />
+              <Whatsapp className="h-4 w-4 mr-2" />
               Bouton WhatsApp
             </TabsTrigger>
             <TabsTrigger value="automation">
@@ -188,7 +198,6 @@ export default function WhatsAppIntegration() {
               <Badge className="ml-2 bg-purple-100 text-purple-800 hover:bg-purple-100">Pro</Badge>
             </TabsTrigger>
           </TabsList>
-          
           <TabsContent value="button">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
@@ -218,7 +227,6 @@ export default function WhatsAppIntegration() {
                         Entrez votre numéro au format international avec le code pays (ex: +33612345678)
                       </p>
                     </div>
-                    
                     <div>
                       <Label htmlFor="welcome-message">Message d'accueil initial</Label>
                       <Textarea 
@@ -232,10 +240,8 @@ export default function WhatsAppIntegration() {
                         Ce message sera pré-rempli lorsque les clients cliquent sur le bouton WhatsApp
                       </p>
                     </div>
-                    
                     <div className="space-y-3">
                       <Label>Apparence du bouton</Label>
-                      
                       <div>
                         <Label htmlFor="button-position" className="text-sm">Position</Label>
                         <Select 
@@ -255,7 +261,6 @@ export default function WhatsAppIntegration() {
                           </SelectContent>
                         </Select>
                       </div>
-                      
                       <div>
                         <Label htmlFor="button-size" className="text-sm">Taille</Label>
                         <Select 
@@ -274,7 +279,6 @@ export default function WhatsAppIntegration() {
                           </SelectContent>
                         </Select>
                       </div>
-                      
                       <div className="flex flex-row items-center justify-between rounded-lg border p-3">
                         <div className="space-y-0.5">
                           <Label className="text-sm">Afficher le texte</Label>
@@ -286,7 +290,6 @@ export default function WhatsAppIntegration() {
                           }
                         />
                       </div>
-                      
                       {buttonStyle.showText && (
                         <div>
                           <Label htmlFor="button-text" className="text-sm">Texte du bouton</Label>
@@ -297,7 +300,6 @@ export default function WhatsAppIntegration() {
                           />
                         </div>
                       )}
-                      
                       <div>
                         <Label className="text-sm">Pages d'affichage</Label>
                         <div className="grid grid-cols-2 gap-2 mt-2">
@@ -363,7 +365,6 @@ export default function WhatsAppIntegration() {
                   </Button>
                 </CardFooter>
               </Card>
-              
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
@@ -384,7 +385,7 @@ export default function WhatsAppIntegration() {
                                           buttonStyle.size === "medium" ? "p-3 text-sm" : 
                                           "p-4 text-base"} 
                                          hover:bg-green-600 transition-colors cursor-pointer shadow-lg`}>
-                            <MessageSquare className={`${buttonStyle.size === "small" ? "h-4 w-4" : 
+                            <Whatsapp className={`${buttonStyle.size === "small" ? "h-4 w-4" : 
                                                        buttonStyle.size === "medium" ? "h-5 w-5" : 
                                                        "h-6 w-6"}`} />
                             {buttonStyle.showText && (
@@ -394,14 +395,13 @@ export default function WhatsAppIntegration() {
                         </div>
                       ) : (
                         <div className="text-center p-6 text-muted-foreground">
-                          <MessageSquare className="h-10 w-10 mx-auto mb-2 text-muted" />
+                          <Whatsapp className="h-10 w-10 mx-auto mb-2 text-muted" />
                           <p>Configurez et enregistrez vos paramètres pour voir l'aperçu</p>
                         </div>
                       )}
                     </div>
                   </CardContent>
                 </Card>
-                
                 {buttonEnabled && (
                   <Card>
                     <CardHeader>
@@ -441,14 +441,14 @@ export default function WhatsAppIntegration() {
               </div>
             </div>
           </TabsContent>
-          
           <TabsContent value="automation">
             <Card>
               <CardHeader className="flex flex-row items-start justify-between">
                 <div>
                   <CardTitle>Automatisation WhatsApp</CardTitle>
                   <CardDescription>
-                    Envoyez automatiquement des messages WhatsApp à vos clients
+                    Envoyez automatiquement des messages WhatsApp personnalisés à vos clients avec <span className="font-bold">whatsapp-web.js</span>.<br />
+                    Pour l'automatisation avancée, connectez notre logiciel d'automation à l'aide de son API (« Pro »)
                   </CardDescription>
                 </div>
                 <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">Pro</Badge>
@@ -460,19 +460,32 @@ export default function WhatsAppIntegration() {
                     <div>
                       <h4 className="font-medium text-purple-800">Fonctionnalité Pro</h4>
                       <p className="text-sm text-purple-700 mt-1">
-                        L'automatisation WhatsApp est une fonctionnalité premium qui vous permet d'envoyer 
-                        automatiquement des messages WhatsApp à vos clients en fonction de leurs actions.
+                        L'automatisation WhatsApp avancée vous permet de synchroniser vos événements avec notre système via API.
                         <Button 
                           variant="link" 
                           className="text-purple-800 p-0 h-auto font-medium" 
-                          onClick={() => setProFeatureModal(true)}
+                          onClick={() => setShowAdvancedAutomation(true)}
                         >
-                          En savoir plus
+                          Connecter mon logiciel d'automatisation
                         </Button>
                       </p>
                     </div>
                   </div>
-                  
+                  {showAdvancedAutomation && (
+                    <div className="border rounded p-4 space-y-3 bg-purple-50 mt-2">
+                      <Label htmlFor="api-key" className="mb-1">Clé API de votre automatisation WhatsApp Pro</Label>
+                      <Input
+                        id="api-key"
+                        type="text"
+                        placeholder="Entrer votre clé API"
+                        value={advancedApiKey}
+                        onChange={e => setAdvancedApiKey(e.target.value)}
+                      />
+                      <Button variant="secondary" className="mt-2" onClick={saveAdvancedApiKey}>
+                        Sauvegarder la clé API et activer l’automatisation avancée
+                      </Button>
+                    </div>
+                  )}
                   <div>
                     <Label htmlFor="whatsapp-number-auto">Numéro WhatsApp Business</Label>
                     <Input 
@@ -488,15 +501,21 @@ export default function WhatsAppIntegration() {
                       </p>
                     )}
                   </div>
-                  
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label>Messages automatiques</Label>
-                      <Button variant="outline" size="sm">
+                      <Label>Messages automatiques personnalisés</Label>
+                      <Button variant="outline" size="sm" onClick={()=>{
+                          setAutoMessages([...autoMessages,{
+                            id: `msg${autoMessages.length+1}`,
+                            trigger: "custom",
+                            content: "Nouveau message personnalisé.",
+                            variables: [],
+                            active: false
+                          }]);
+                        }}>
                         Ajouter un message
                       </Button>
                     </div>
-                    
                     <div className="space-y-3">
                       {autoMessages.map(message => (
                         <Card key={message.id}>
@@ -506,6 +525,7 @@ export default function WhatsAppIntegration() {
                                 {message.trigger === "welcome" && <Users className="h-4 w-4 text-blue-500" />}
                                 {message.trigger === "abandoned_cart" && <ShoppingCart className="h-4 w-4 text-orange-500" />}
                                 {message.trigger === "order_confirmed" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                                {message.trigger === "custom" && <MessageSquare className="h-4 w-4 text-gray-500" />}
                                 <span className="font-medium">{getTriggerLabel(message.trigger)}</span>
                               </div>
                               <Switch
@@ -513,11 +533,15 @@ export default function WhatsAppIntegration() {
                                 onCheckedChange={(checked) => toggleAutoMessage(message.id, checked)}
                               />
                             </div>
-                            
-                            <div className="rounded bg-gray-50 p-3 text-sm">
-                              {message.content}
+                            <div>
+                              <Textarea 
+                                className="w-full mb-1"
+                                rows={2}
+                                value={message.content}
+                                onChange={e => handleMessageChange(message.id, e.target.value)}
+                              />
+                              <div className="rounded bg-gray-50 p-2 text-xs mb-1">Variables disponibles : {message.variables.map(v => <span key={v} className="text-purple-600 mr-1">{`{{${v}}}`}</span> )}</div>
                             </div>
-                            
                             {message.variables.length > 0 && (
                               <div className="flex flex-wrap gap-1">
                                 {message.variables.map(variable => (
@@ -532,17 +556,13 @@ export default function WhatsAppIntegration() {
                       ))}
                     </div>
                   </div>
-                  
                   <div className="bg-yellow-50 p-4 rounded-md flex items-start gap-3">
                     <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-yellow-800">Connexion API requise</h4>
+                      <h4 className="font-medium text-yellow-800">Connexion à whatsapp-web.js ou à notre API pour automatisation</h4>
                       <p className="text-sm text-yellow-700 mt-1">
-                        Pour utiliser l'automatisation WhatsApp, vous devez disposer d'un compte WhatsApp Business 
-                        et vérifier votre numéro de téléphone. 
-                        <Button variant="link" className="text-yellow-800 p-0 h-auto font-medium">
-                          Voir les instructions
-                        </Button>
+                        Pour envoyer automatiquement des messages, utilisez le package <a href="https://wwebjs.dev/" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">whatsapp-web.js</a> sur votre serveur, ou optez pour notre offre avancée via API.<br />
+                        Notre équipe peut vous aider à la configuration sur demande 💬.
                       </p>
                     </div>
                   </div>
@@ -553,9 +573,36 @@ export default function WhatsAppIntegration() {
                   onClick={saveAutomationSettings}
                   disabled={!isValidNumber || !whatsappNumber}
                 >
-                  Activer l'automatisation
+                  Activer l'automatisation WhatsApp
                 </Button>
               </CardFooter>
+            </Card>
+          </TabsContent>
+          <TabsContent value="permissions">
+            <Card>
+              <CardHeader>
+                <CardTitle>Autorisations WhatsApp Marketing</CardTitle>
+                <CardDescription>Gérez les rôles autorisés à utiliser l'automatisation WhatsApp</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span>Admin</span>
+                    <Switch checked={true} disabled />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Vendeur</span>
+                    <Switch checked={true} />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Client</span>
+                    <Switch checked={false} />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Seuls les rôles activés ici auront accès aux fonctions marketing WhatsApp.
+                </p>
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
