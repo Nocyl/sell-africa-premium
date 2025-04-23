@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -27,7 +28,7 @@ import {
   Link as LinkIcon,
   Clock,
   ArrowRight,
-  LayoutGrid,
+  LayoutGrid as LayoutGridIcon,
 } from "lucide-react";
 import EmptyState from "@/components/dashboard/seller/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -689,7 +690,7 @@ export default function SellerMarketing() {
                       onClick={() => setDisplayMode("grid")}
                       className={displayMode === "grid" ? "bg-muted" : ""}
                     >
-                      <LayoutGrid className="h-4 w-4" />
+                      <LayoutGridIcon className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
@@ -820,3 +821,148 @@ export default function SellerMarketing() {
                                 <td className="p-3">
                                   {getStatusBadge(promotion.status)}
                                 </td>
+                                <td className="p-3 text-right">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deletePromotion(promotion.id);
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4 text-red-500" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="coupons">
+            <EmptyState
+              title="Codes promo"
+              description="Créez et gérez vos codes promo pour offrir des réductions à vos clients."
+              icon={<Gift className="h-6 w-6" />}
+              actionLabel="Créer un code promo"
+              actionLink="/seller/marketing/coupons/new"
+              actionOnClick={() => {
+                toast.info("Cette fonctionnalité sera disponible prochainement");
+              }}
+            />
+          </TabsContent>
+          
+          <TabsContent value="whatsapp">
+            <Card>
+              <CardHeader>
+                <CardTitle>Intégration WhatsApp Business</CardTitle>
+                <CardDescription>
+                  Connectez votre compte WhatsApp Business pour communiquer avec vos clients
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6">
+                  <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <Label className="text-base">Activer WhatsApp</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Permettre aux clients de vous contacter via WhatsApp
+                      </p>
+                    </div>
+                    <Switch
+                      checked={whatsappSettings.enabled}
+                      onCheckedChange={(checked) => 
+                        setWhatsappSettings({...whatsappSettings, enabled: checked})
+                      }
+                    />
+                  </div>
+                  
+                  {whatsappSettings.enabled && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="phoneNumber">Numéro de téléphone</Label>
+                        <Input 
+                          id="phoneNumber" 
+                          placeholder="+33 6 12 34 56 78" 
+                          value={whatsappSettings.phoneNumber}
+                          onChange={(e) => setWhatsappSettings({...whatsappSettings, phoneNumber: e.target.value})}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Entrez votre numéro de téléphone professionnel avec l'indicatif du pays
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="welcomeMessage">Message d'accueil</Label>
+                        <Textarea 
+                          id="welcomeMessage" 
+                          placeholder="Bonjour ! Comment puis-je vous aider ?" 
+                          rows={3}
+                          value={whatsappSettings.welcomeMessage}
+                          onChange={(e) => setWhatsappSettings({...whatsappSettings, welcomeMessage: e.target.value})}
+                        />
+                      </div>
+                      
+                      <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <Label className="text-base">Réponses automatiques</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Activer les réponses automatiques en dehors des heures de bureau
+                          </p>
+                        </div>
+                        <Switch
+                          checked={whatsappSettings.autoResponses}
+                          onCheckedChange={(checked) => 
+                            setWhatsappSettings({...whatsappSettings, autoResponses: checked})
+                          }
+                        />
+                      </div>
+                      
+                      <div className="bg-yellow-50 p-4 rounded-md flex items-start gap-3">
+                        <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-yellow-800">Vérification requise</h4>
+                          <p className="text-sm text-yellow-700 mt-1">
+                            Pour utiliser l'API WhatsApp Business, vous devez vérifier votre compte 
+                            professionnel. <a href="#" className="underline font-medium">En savoir plus</a>
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  onClick={saveWhatsAppSettings}
+                  disabled={!whatsappSettings.enabled || !whatsappSettings.phoneNumber}
+                >
+                  Enregistrer les paramètres
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="stats">
+            <EmptyState
+              title="Statistiques marketing"
+              description="Suivez l'efficacité de vos campagnes marketing et mesurez leur impact sur vos ventes."
+              icon={<BarChart className="h-6 w-6" />}
+              actionLabel="Voir les stats"
+              actionLink="/seller/marketing/stats"
+              actionOnClick={() => {
+                toast.info("Cette fonctionnalité sera disponible prochainement");
+              }}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardLayout>
+  );
+}
