@@ -40,8 +40,67 @@ import SellerSales from "./pages/dashboard/seller/SellerSales";
 import SellerPromotions from "./pages/dashboard/seller/SellerPromotions";
 import SellerCoupons from "./pages/dashboard/seller/SellerCoupons";
 import WhatsAppIntegration from "./pages/dashboard/seller/WhatsAppIntegration";
+import { useWhatsAppButton } from "./hooks/useWhatsAppButton";
+import WhatsAppButton from "./components/WhatsAppButton";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const { showButton, buttonConfig } = useWhatsAppButton();
+  
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/digital" element={<DigitalProducts />} />
+        <Route path="/physical" element={<PhysicalProducts />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/course/:id" element={<CourseDetail />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/sell" element={<Sell />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/dashboard/orders" element={<DashboardOrders />} />
+        <Route path="/dashboard/courses" element={<DashboardCourses />} />
+        <Route path="/dashboard/profile" element={<DashboardProfile />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route path="/seller" element={<SellerDashboard />} />
+        <Route path="/seller/settings" element={<SellerSettings />} />
+        <Route path="/seller/orders" element={<SellerOrders />} />
+        <Route path="/seller/marketing" element={<SellerMarketing />} />
+        <Route path="/seller/sales" element={<SellerSales />} />
+        <Route path="/dashboard/settings" element={<DashboardSettings />} />
+        <Route path="/seller/products" element={<SellerProducts />} />
+        <Route path="/seller/products/new" element={<SellerAddProduct />} />
+        <Route path="/seller/courses" element={<SellerCourses />} />
+        <Route path="/seller/courses/new" element={<SellerAddCourse />} />
+        {/* Routes for marketing features */}
+        <Route path="/seller/promotions" element={<SellerPromotions />} />
+        <Route path="/seller/coupons" element={<SellerCoupons />} />
+        <Route path="/seller/whatsapp" element={<WhatsAppIntegration />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+
+      {/* WhatsApp Button component that appears on selected pages */}
+      {showButton && (
+        <WhatsAppButton 
+          phoneNumber={buttonConfig.phoneNumber}
+          message={buttonConfig.message}
+          position={buttonConfig.position}
+          size={buttonConfig.size}
+          showText={buttonConfig.showText}
+          text={buttonConfig.text}
+        />
+      )}
+    </>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -51,42 +110,7 @@ const App = () => (
           <Toaster />
           <Sonner position="top-right" closeButton richColors />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/digital" element={<DigitalProducts />} />
-              <Route path="/physical" element={<PhysicalProducts />} />
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/course/:id" element={<CourseDetail />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/sell" element={<Sell />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/dashboard" element={<UserDashboard />} />
-              <Route path="/dashboard/orders" element={<DashboardOrders />} />
-              <Route path="/dashboard/courses" element={<DashboardCourses />} />
-              <Route path="/dashboard/profile" element={<DashboardProfile />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/seller" element={<SellerDashboard />} />
-              <Route path="/seller/settings" element={<SellerSettings />} />
-              <Route path="/seller/orders" element={<SellerOrders />} />
-              <Route path="/seller/marketing" element={<SellerMarketing />} />
-              <Route path="/seller/sales" element={<SellerSales />} />
-              <Route path="/dashboard/settings" element={<DashboardSettings />} />
-              <Route path="/seller/products" element={<SellerProducts />} />
-              <Route path="/seller/products/new" element={<SellerAddProduct />} />
-              <Route path="/seller/courses" element={<SellerCourses />} />
-              <Route path="/seller/courses/new" element={<SellerAddCourse />} />
-              {/* New routes for marketing features */}
-              <Route path="/seller/promotions" element={<SellerPromotions />} />
-              <Route path="/seller/coupons" element={<SellerCoupons />} />
-              <Route path="/seller/whatsapp" element={<WhatsAppIntegration />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppContent />
           </BrowserRouter>
         </SearchProvider>
       </CartProvider>

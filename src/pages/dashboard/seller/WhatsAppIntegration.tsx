@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -24,7 +25,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Whatsapp } from "lucide-react";
 
 interface WhatsAppButtonStyle {
   position: "bottom-right" | "bottom-left" | "middle-right" | "middle-left";
@@ -115,7 +115,7 @@ export default function WhatsAppIntegration() {
       toast.error("Veuillez renseigner votre clé API d'automatisation.");
       return;
     }
-    toast.success("Clé API enregistrée ! Automatisation avancée activée.");
+    toast.success("Clé API enregistrée ! Automatisation avancée activée.");
     setShowAdvancedAutomation(false);
   };
 
@@ -189,7 +189,7 @@ export default function WhatsAppIntegration() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="button">
-              <Whatsapp className="h-4 w-4 mr-2" />
+              <MessageSquare className="h-4 w-4 mr-2" />
               Bouton WhatsApp
             </TabsTrigger>
             <TabsTrigger value="automation">
@@ -385,7 +385,7 @@ export default function WhatsAppIntegration() {
                                           buttonStyle.size === "medium" ? "p-3 text-sm" : 
                                           "p-4 text-base"} 
                                          hover:bg-green-600 transition-colors cursor-pointer shadow-lg`}>
-                            <Whatsapp className={`${buttonStyle.size === "small" ? "h-4 w-4" : 
+                            <MessageSquare className={`${buttonStyle.size === "small" ? "h-4 w-4" : 
                                                        buttonStyle.size === "medium" ? "h-5 w-5" : 
                                                        "h-6 w-6"}`} />
                             {buttonStyle.showText && (
@@ -395,7 +395,7 @@ export default function WhatsAppIntegration() {
                         </div>
                       ) : (
                         <div className="text-center p-6 text-muted-foreground">
-                          <Whatsapp className="h-10 w-10 mx-auto mb-2 text-muted" />
+                          <MessageSquare className="h-10 w-10 mx-auto mb-2 text-muted" />
                           <p>Configurez et enregistrez vos paramètres pour voir l'aperçu</p>
                         </div>
                       )}
@@ -448,7 +448,7 @@ export default function WhatsAppIntegration() {
                   <CardTitle>Automatisation WhatsApp</CardTitle>
                   <CardDescription>
                     Envoyez automatiquement des messages WhatsApp personnalisés à vos clients avec <span className="font-bold">whatsapp-web.js</span>.<br />
-                    Pour l'automatisation avancée, connectez notre logiciel d'automation à l'aide de son API (« Pro »)
+                    Pour l'automatisation avancée, connectez notre logiciel d'automation à l'aide de son API (« Pro »)
                   </CardDescription>
                 </div>
                 <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">Pro</Badge>
@@ -482,7 +482,7 @@ export default function WhatsAppIntegration() {
                         onChange={e => setAdvancedApiKey(e.target.value)}
                       />
                       <Button variant="secondary" className="mt-2" onClick={saveAdvancedApiKey}>
-                        Sauvegarder la clé API et activer l’automatisation avancée
+                        Sauvegarder la clé API et activer l'automatisation avancée
                       </Button>
                     </div>
                   )}
@@ -540,7 +540,7 @@ export default function WhatsAppIntegration() {
                                 value={message.content}
                                 onChange={e => handleMessageChange(message.id, e.target.value)}
                               />
-                              <div className="rounded bg-gray-50 p-2 text-xs mb-1">Variables disponibles : {message.variables.map(v => <span key={v} className="text-purple-600 mr-1">{`{{${v}}}`}</span> )}</div>
+                              <div className="rounded bg-gray-50 p-2 text-xs mb-1">Variables disponibles : {message.variables.map(v => <span key={v} className="text-purple-600 mr-1">{`{{${v}}}`}</span> )}</div>
                             </div>
                             {message.variables.length > 0 && (
                               <div className="flex flex-wrap gap-1">
